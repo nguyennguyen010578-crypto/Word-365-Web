@@ -1,1887 +1,233 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Microsoft Word 365 Web Application</title>
-    <!-- Dynamic Word 'W' Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23185abd'/><path d='M7 9h4.5l3.5 12 3.5-12H23l-5.5 15h-4z' fill='white'/></svg>">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --word-blue-dark: #103f91;
-            --word-blue: #185abd;
-            --word-blue-light: #2b579a;
-            --word-blue-accent: #0078d4;
-            --word-bg: #f3f2f1;
-            --word-border: #e1dfdd;
-            --word-hover: #edebe9;
-            --word-text: #323130;
-            --word-ribbon-bg: #ffffff;
-            --paper-width: 816px;
-            --paper-min-height: 1056px;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--word-bg);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            color: var(--word-text);
-            overflow: hidden;
-            user-select: none;
-        }
-
-        /* 1. Header & Title Bar */
-        .title-bar {
-            background: var(--word-blue-dark);
-            color: white;
-            height: 44px;
-            padding: 0 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 13px;
-            z-index: 100;
-            flex-shrink: 0;
-        }
-        .title-bar-left { display: flex; align-items: center; gap: 12px; }
+<!-- ... existing code ... -->
+            <!-- Quick Access Toolbar Buttons -->
+            <button class="p-1.5 hover:bg-blue-800 rounded text-xs flex items-center gap-1 transition" title="Save (Auto-saves to LocalStorage)">
+                <i class="fas font-solid fa-floppy-disk"></i>
+            </button>
+            <button class="p-1.5 hover:bg-blue-800 rounded text-xs transition" title="Undo" onclick="document.execCommand('undo')">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="p-1.5 hover:bg-blue-800 rounded text-xs transition" title="Redo" onclick="document.execCommand('redo')">
+                <i class="fas fa-redo"></i>
+            </button>
+            <button class="p-1.5 hover:bg-red-700/80 hover:bg-red-700 rounded text-xs transition flex items-center gap-1 text-white" title="Reset Document" onclick="openResetModal()">
+                <i class="fas fa-rotate-left"></i>
+                <span class="hidden sm:inline text-xs font-medium">Reset</span>
+            </button>
+        </div>
         
-        .word-brand-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.12);
-            padding: 4px 10px 4px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .word-brand-badge:hover { background: rgba(255, 255, 255, 0.25); }
-        .word-icon-square {
-            background: #ffffff;
-            color: var(--word-blue-dark);
-            width: 26px;
-            height: 26px;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 17px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .word-brand-title {
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            font-size: 14px;
-        }
-
-        .doc-title-input {
-            background: transparent;
-            border: 1px solid transparent;
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            outline: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            width: 220px;
-            transition: all 0.2s;
-        }
-        .doc-title-input:hover, .doc-title-input:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-        .save-status {
-            font-size: 11px;
-            opacity: 0.9;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0,0,0,0.15);
-            padding: 3px 8px;
-            border-radius: 12px;
-        }
-
-        /* Tell Me / Quick Search */
-        .title-search {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            padding: 5px 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 300px;
-            color: white;
-            position: relative;
-            transition: background 0.2s;
-        }
-        .title-search:hover, .title-search:focus-within {
-            background: rgba(255, 255, 255, 0.32);
-        }
-        .title-search input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: white;
-            font-size: 12px;
-            width: 100%;
-        }
-        .title-search input::placeholder { color: rgba(255, 255, 255, 0.75); }
-        .search-results-dropdown {
-            display: none;
-            position: absolute;
-            top: 36px;
-            left: 0;
-            right: 0;
-            background: white;
-            color: var(--word-text);
-            border-radius: 4px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-            z-index: 1001;
-            max-height: 250px;
-            overflow-y: auto;
-        }
-        .search-item {
-            padding: 8px 12px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid var(--word-border);
-        }
-        .search-item:hover { background: var(--word-hover); }
-
-        /* Profile Hub */
-        .account-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-        .account-container:hover { background: rgba(255,255,255,0.15); }
-        .avatar-wrap { position: relative; }
-        .account-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--word-blue-accent);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 12px;
-            border: 1.5px solid white;
-        }
-        .status-dot {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 8px;
-            height: 8px;
-            background: #107c41;
-            border-radius: 50%;
-            border: 1px solid white;
-        }
-        .account-name { font-size: 13px; font-weight: 500; }
-
-        .account-dropdown {
-            display: none;
-            position: absolute;
-            top: 38px;
-            right: 0;
-            background: #ffffff;
-            color: var(--word-text);
-            width: 300px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-            border-radius: 6px;
-            z-index: 1000;
-            border: 1px solid var(--word-border);
-            overflow: hidden;
-        }
-        .account-dropdown.show { display: block; }
-        .acc-header {
-            background: var(--word-bg);
-            padding: 16px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            border-bottom: 1px solid var(--word-border);
-        }
-        .acc-big-avatar {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: var(--word-blue);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .acc-info .name { font-weight: bold; font-size: 14px; }
-        .acc-info .email { font-size: 11px; color: #605e5c; word-break: break-all; }
-        
-        .onedrive-meter {
-            padding: 12px 16px;
-            background: #f8f9fa;
-            border-bottom: 1px solid var(--word-border);
-            font-size: 11px;
-        }
-        .meter-bar {
-            height: 6px;
-            background: #e1dfdd;
-            border-radius: 3px;
-            margin-top: 6px;
-            overflow: hidden;
-        }
-        .meter-fill {
-            height: 100%;
-            width: 25%;
-            background: var(--word-blue-accent);
-        }
-
-        .acc-body { padding: 6px 0; }
-        .acc-item {
-            padding: 10px 16px;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            transition: background 0.15s;
-        }
-        .acc-item:hover { background: var(--word-hover); }
-
-        /* 2. Ribbon Tabs Navigation */
-        .ribbon-tabs {
-            background: var(--word-bg);
-            display: flex;
-            border-bottom: 1px solid var(--word-border);
-            padding: 0 12px;
-            gap: 2px;
-            flex-shrink: 0;
-        }
-        .tab-btn {
-            padding: 8px 14px;
-            font-size: 13px;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            color: #605e5c;
-            font-weight: 500;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-            transition: all 0.15s;
-        }
-        .tab-btn:hover { background: var(--word-hover); color: var(--word-text); }
-        .tab-btn.file-tab {
-            background: var(--word-blue);
-            color: white !important;
-            font-weight: bold;
-            margin-right: 4px;
-        }
-        .tab-btn.file-tab:hover { background: var(--word-blue-dark); }
-        .tab-btn.active {
-            background: #ffffff;
-            border-bottom: 2px solid var(--word-blue);
-            color: var(--word-blue);
-            font-weight: 600;
-        }
-
-        /* 3. Ribbon Toolbar Panel */
-        .ribbon-toolbar {
-            background: #ffffff;
-            border-bottom: 1px solid var(--word-border);
-            padding: 6px 16px;
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            height: 96px;
-            overflow-x: auto;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            flex-shrink: 0;
-        }
-        .ribbon-panel { display: none; gap: 16px; align-items: center; height: 100%; }
-        .ribbon-panel.active { display: flex; }
-        .ribbon-group {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100%;
-            padding-right: 12px;
-            border-right: 1px solid var(--word-border);
-        }
-        .ribbon-group:last-child { border-right: none; }
-        .group-buttons { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-        .group-label {
-            font-size: 11px;
-            color: #605e5c;
-            text-align: center;
-            margin-top: 2px;
-            font-weight: 500;
-        }
-
-        /* Control Elements inside Ribbon */
-        button, select {
-            background: #ffffff;
-            border: 1px solid transparent;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--word-text);
-            gap: 6px;
-            transition: all 0.15s;
-        }
-        button:hover, select:hover { background: var(--word-hover); border-color: var(--word-border); }
-        button:active { background: #e1dfdd; }
-        .tool-btn-lg {
-            flex-direction: column;
-            height: 58px;
-            padding: 6px 10px;
-            font-size: 11px;
-            justify-content: center;
-        }
-        .tool-btn-lg i { font-size: 18px; color: var(--word-blue); }
-        .btn-active { background: #c8e6c9 !important; border-color: #81c784 !important; }
-
-        input[type="color"] {
-            border: 1px solid var(--word-border);
-            width: 28px;
-            height: 28px;
-            padding: 2px;
-            background: none;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-
-        .style-preset-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-            height: 56px;
-            width: 75px;
-            padding: 4px 6px;
-            border: 1px solid var(--word-border);
-            background: #fff;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .style-preset-btn:hover { background: var(--word-hover); }
-
-        /* Live Rulers */
-        .ruler-h-container {
-            background: var(--word-bg);
-            display: flex;
-            justify-content: center;
-            border-bottom: 1px solid #d2d0ce;
-            flex-shrink: 0;
-        }
-        .ruler-h {
-            width: var(--paper-width);
-            height: 20px;
-            background: #ffffff;
-            border-left: 1px solid #b3b0ad;
-            border-right: 1px solid #b3b0ad;
-            position: relative;
-            font-size: 9px;
-            color: #605e5c;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding: 0 96px;
-            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.03);
-        }
-        .ruler-tick { height: 6px; width: 1px; background: #8a8886; }
-
-        .ruler-v {
-            width: 20px;
-            background: #ffffff;
-            border-top: 1px solid #b3b0ad;
-            border-bottom: 1px solid #b3b0ad;
-            border-right: 1px solid #d2d0ce;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding: 96px 0;
-            height: var(--paper-min-height);
-            position: absolute;
-            left: -20px;
-            top: 0;
-        }
-        .ruler-v-tick { width: 6px; height: 1px; background: #8a8886; }
-
-        /* Main Workspace Viewport */
-        .main-workspace {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .viewport {
-            flex: 1;
-            overflow: auto;
-            padding: 30px 40px 60px 60px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #e6e6e6;
-            transition: background 0.3s;
-            position: relative;
-        }
-
-        /* Document Page Container */
-        .document-page-wrap {
-            position: relative;
-            margin-bottom: 40px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-
-        .document-page {
-            background: #ffffff;
-            width: var(--paper-width);
-            min-height: var(--paper-min-height);
-            padding: 96px;
-            outline: none;
-            line-height: 1.6;
-            font-size: 15px;
-            color: #323130;
-            transform-origin: top center;
-            transition: transform 0.2s, background 0.3s, color 0.3s;
-            position: relative;
-            word-wrap: break-word;
-        }
-
-        .document-page.dark-mode {
-            background: #1e1e1e !important;
-            color: #e0e0e0 !important;
-        }
-
-        .document-page.gridlines {
-            background-image: linear-gradient(to right, #f0f0f0 1px, transparent 1px),
-                              linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        .document-page.read-mode {
-            max-width: 900px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            padding: 60px 100px;
-        }
-
-        /* Multi-column Layout Helpers */
-        .cols-2 { column-count: 2; column-gap: 32px; }
-        .cols-3 { column-count: 3; column-gap: 24px; }
-
-        /* Header & Footer Zones Visual Guide */
-        .header-zone, .footer-zone {
-            position: absolute;
-            left: 96px;
-            right: 96px;
-            font-size: 11px;
-            color: #a19f9d;
-            border-bottom: 1px dashed #c8c6c4;
-            padding-bottom: 4px;
-            outline: none;
-        }
-        .header-zone { top: 32px; }
-        .footer-zone { bottom: 32px; border-bottom: none; border-top: 1px dashed #c8c6c4; padding-top: 4px; }
-
-        /* Canvas Draw Overlay */
-        #drawCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-        #drawCanvas.active { pointer-events: auto; cursor: crosshair; }
-
-        /* Watermark */
-        .watermark {
-            position: absolute;
-            top: 40%;
-            left: 10%;
-            right: 10%;
-            text-align: center;
-            transform: rotate(-35deg);
-            font-size: 72px;
-            color: rgba(0,0,0,0.06);
-            font-weight: 900;
-            pointer-events: none;
-            user-select: none;
-            text-transform: uppercase;
-        }
-
-        /* Annotations / Notes Sidebar */
-        .comments-sidebar {
-            width: 280px;
-            background: #ffffff;
-            border-left: 1px solid var(--word-border);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
-        }
-        .comments-sidebar.collapsed {
-            display: none;
-        }
-        .sidebar-header {
-            padding: 12px 16px;
-            font-weight: 600;
-            font-size: 13px;
-            border-bottom: 1px solid var(--word-border);
-            background: var(--word-bg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .sidebar-content {
-            padding: 12px;
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .comment-card {
-            background: #f8f9fa;
-            border: 1px solid var(--word-border);
-            border-radius: 4px;
-            padding: 10px;
-            font-size: 12px;
-        }
-        .comment-author { font-weight: bold; color: var(--word-blue); margin-bottom: 4px; }
-        .comment-text { color: #323130; margin-bottom: 6px; }
-        .comment-date { font-size: 10px; color: #8a8886; }
-
-        /* Status Bar */
-        .status-bar {
-            background: var(--word-bg);
-            border-top: 1px solid var(--word-border);
-            padding: 4px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #605e5c;
-            z-index: 100;
-            flex-shrink: 0;
-        }
-        .status-left, .status-right { display: flex; gap: 16px; align-items: center; }
-        .status-item { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 2px 6px; border-radius: 3px; }
-        .status-item:hover { background: var(--word-hover); color: var(--word-text); }
-
-        /* Modals */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.4);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(2px);
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-card {
-            background: white;
-            width: 440px;
-            padding: 24px;
-            border-radius: 6px;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.2);
-            animation: modalSlide 0.2s ease-out;
-        }
-        @keyframes modalSlide { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-header { font-weight: 700; font-size: 16px; margin-bottom: 16px; color: var(--word-blue); display: flex; justify-content: space-between; align-items: center; }
-        .modal-close { cursor: pointer; border: none; background: none; font-size: 16px; color: #605e5c; }
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-size: 12px; margin-bottom: 6px; color: #605e5c; font-weight: 600; }
-        .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid var(--word-border); border-radius: 4px; font-size: 13px; outline: none; }
-        .form-group input:focus { border-color: var(--word-blue-accent); }
-        .btn-primary { width: 100%; background: var(--word-blue); color: white; border: none; padding: 10px; border-radius: 4px; font-weight: 600; cursor: pointer; margin-top: 8px; font-size: 13px; }
-        .btn-primary:hover { background: var(--word-blue-dark); }
-
-        .symbol-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 10px; max-height: 200px; overflow-y: auto; padding: 4px; }
-        .symbol-item { text-align: center; font-size: 20px; padding: 8px; border: 1px solid var(--word-border); cursor: pointer; border-radius: 4px; transition: all 0.15s; }
-        .symbol-item:hover { background: var(--word-hover); border-color: var(--word-blue); transform: scale(1.1); }
-
-        /* Tables inside editor */
-        .document-page table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 12px 0;
-        }
-        .document-page table, .document-page th, .document-page td {
-            border: 1px solid #a19f9d;
-        }
-        .document-page th, .document-page td {
-            padding: 8px 12px;
-            min-width: 30px;
-        }
-
-        /* Chart Placeholder Styles */
-        .chart-box {
-            border: 2px dashed var(--word-blue);
-            padding: 16px;
-            border-radius: 6px;
-            background: #f0f8ff;
-            text-align: center;
-            margin: 16px 0;
-        }
-        .chart-bar-wrap {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 12px;
-            height: 100px;
-            margin-top: 12px;
-        }
-        .chart-bar {
-            width: 24px;
-            background: var(--word-blue);
-            border-radius: 3px 3px 0 0;
-        }
-
-        /* Splash Screen / Startup Overlay */
-        .splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #ffffff;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
-        }
-        .splash-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .splash-logo-box {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #103f91, #185abd);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 25px rgba(24, 90, 189, 0.35);
-            margin-bottom: 20px;
-            animation: pulseLogo 1.5s infinite alternate;
-        }
-        @keyframes pulseLogo {
-            0% { transform: scale(0.96); }
-            100% { transform: scale(1.04); }
-        }
-        .splash-logo-w {
-            color: #ffffff;
-            font-size: 52px;
-            font-weight: 900;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .splash-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--word-blue-dark);
-            letter-spacing: 0.5px;
-        }
-        .splash-loader {
-            width: 140px;
-            height: 4px;
-            background: #e1dfdd;
-            border-radius: 2px;
-            margin-top: 18px;
-            overflow: hidden;
-            position: relative;
-        }
-        .splash-loader-bar {
-            width: 40%;
-            height: 100%;
-            background: var(--word-blue-accent);
-            border-radius: 2px;
-            position: absolute;
-            animation: loaderMove 1.2s infinite ease-in-out;
-        }
-        @keyframes loaderMove {
-            0% { left: -40%; }
-            100% { left: 100%; }
-        }
-
-        /* Print styles */
-        @media print {
-            .splash-screen, .title-bar, .ribbon-tabs, .ribbon-toolbar, .ruler-h-container, .ruler-v, .status-bar, .header-zone, .footer-zone, #drawCanvas, .comments-sidebar { display: none !important; }
-            body, .viewport, .main-workspace { background: white !important; padding: 0 !important; overflow: visible !important; }
-            .document-page-wrap { box-shadow: none !important; margin: 0 !important; }
-            .document-page { width: 100% !important; padding: 0 !important; transform: scale(1) !important; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Startup / Splash Loading Overlay -->
-    <div class="splash-screen" id="splashScreen">
-        <div class="splash-logo-box">
-            <span class="splash-logo-w">W</span>
-        </div>
-        <div class="splash-title">Microsoft Word 365</div>
-        <div class="splash-loader">
-            <div class="splash-loader-bar"></div>
-        </div>
-    </div>
-
-    <!-- 1. Header / Title Bar with Authentic Branding -->
-    <div class="title-bar">
-        <div class="title-bar-left">
-            <div class="word-brand-badge" title="Microsoft Word 365 Web" onclick="openModal('fileModal')">
-                <div class="word-icon-square">W</div>
-                <span class="word-brand-title">Word</span>
-            </div>
-            
-            <input type="text" class="doc-title-input" id="docTitleInput" value="Tài liệu 1 - Word 365" onchange="saveDocumentState()">
-            <div class="save-status" id="saveStatus"><i class="fa-solid fa-cloud"></i> Đã lưu vào OneDrive</div>
-        </div>
-
-        <!-- Tell Me / Search Bar -->
-        <div class="title-search">
-            <i class="fa-solid fa-lightbulb" style="color: #ffeb3b;"></i>
-            <input type="text" id="quickSearchInput" placeholder="Cho tôi biết bạn muốn làm gì..." onkeyup="handleQuickSearch(event)">
-            <div class="search-results-dropdown" id="searchResults"></div>
-        </div>
-
-        <!-- Profile Hub -->
-        <div class="account-container" onclick="toggleAccountMenu()">
-            <div class="avatar-wrap">
-                <div class="account-avatar" id="userAvatar">K</div>
-                <div class="status-dot"></div>
-            </div>
-            <div class="account-name" id="userName">Khách</div>
-            <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
-
-            <div class="account-dropdown" id="accountDropdown" onclick="event.stopPropagation()">
-                <div class="acc-header">
-                    <div class="acc-big-avatar" id="userBigAvatar">K</div>
-                    <div class="acc-info">
-                        <div class="name" id="accFullName">Tài khoản Khách</div>
-                        <div class="email" id="accEmail">Chưa đăng nhập</div>
+        <!-- App Title & Search Bar -->
+        <div class="flex-1 max-w-xl mx-4 flex items-center gap-2">
+            <span id="docTitleDisplay" class="font-semibold text-sm truncate cursor-pointer hover:underline" onclick="renameDocument()">Văn bản chưa đặt tên - Word</span>
+<!-- ... existing code ... -->
+                <!-- HOME TAB CONTENT -->
+                <div id="home-tab" class="ribbon-tab-content flex items-center gap-3 overflow-x-auto py-1">
+                    <!-- Undo/Clipboard Group -->
+                    <div class="flex items-center gap-1 pr-3 border-r border-slate-200 dark:border-gray-700">
+                        <button onclick="document.execCommand('undo')" class="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-gray-700 flex flex-col items-center text-xs" title="Hoàn tác (Ctrl+Z)">
+                            <i class="fas fa-undo text-blue-600 dark:text-blue-400 text-sm"></i>
+                            <span class="text-[10px]">Undo</span>
+                        </button>
+                        <button onclick="document.execCommand('redo')" class="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-gray-700 flex flex-col items-center text-xs" title="Làm lại (Ctrl+Y)">
+                            <i class="fas fa-redo text-blue-600 dark:text-blue-400 text-sm"></i>
+                            <span class="text-[10px]">Redo</span>
+                        </button>
                     </div>
-                    <div class="word-icon-square" style="margin-left: auto; width: 32px; height: 32px; font-size: 20px;" title="Word 365">W</div>
+
+                    <!-- Font Formatting Group -->
+                    <div class="flex items-center gap-1 pr-3 border-r border-slate-200 dark:border-gray-700">
+                        <select onchange="executeCommand('fontName', this.value)" class="text-xs border rounded p-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="Arial">Arial</option>
+                            <option value="Calibri" selected>Calibri</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Segoe UI">Segoe UI</option>
+                        </select>
+                        <select onchange="executeCommand('fontSize', this.value)" class="text-xs border rounded p-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="1">8pt</option>
+                            <option value="2">10pt</option>
+                            <option value="3" selected>12pt</option>
+                            <option value="4">14pt</option>
+                            <option value="5">18pt</option>
+                            <option value="6">24pt</option>
+                            <option value="7">36pt</option>
+                        </select>
+                        <button onclick="executeCommand('bold')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 font-bold text-xs" title="In đậm (Ctrl+B)">B</button>
+                        <button onclick="executeCommand('italic')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 italic text-xs" title="In nghiêng (Ctrl+I)">I</button>
+                        <button onclick="executeCommand('underline')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 underline text-xs" title="Gạch chân (Ctrl+U)">U</button>
+                        <button onclick="executeCommand('strikeThrough')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 line-through text-xs" title="Gạch ngang">S</button>
+                        <input type="color" onchange="executeCommand('foreColor', this.value)" class="w-6 h-6 p-0 border-0 cursor-pointer rounded" title="Màu chữ">
+                        <input type="color" onchange="executeCommand('hiliteColor', this.value)" value="#ffff00" class="w-6 h-6 p-0 border-0 cursor-pointer rounded" title="Màu nền chữ (Highlight)">
+                    </div>
+
+                    <!-- Paragraph Alignment & List Group -->
+                    <div class="flex items-center gap-1 pr-3 border-r border-slate-200 dark:border-gray-700">
+                        <button onclick="executeCommand('justifyLeft')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn trái"><i class="fas fa-align-left"></i></button>
+                        <button onclick="executeCommand('justifyCenter')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn giữa"><i class="fas fa-align-center"></i></button>
+                        <button onclick="executeCommand('justifyRight')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn phải"><i class="fas fa-align-right"></i></button>
+                        <button onclick="executeCommand('justifyFull')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn đều"><i class="fas fa-align-justify"></i></button>
+                        <button onclick="executeCommand('insertUnorderedList')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Danh sách dấu đầu dòng"><i class="fas fa-list-ul"></i></button>
+                        <button onclick="executeCommand('insertOrderedList')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Danh sách số"><i class="fas fa-list-ol"></i></button>
+                    </div>
+
+                    <!-- Reset Shortcut Action -->
+                    <div class="flex items-center gap-1">
+                        <button onclick="openResetModal()" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-300 rounded border border-red-200 dark:border-red-800 font-medium text-xs flex items-center gap-1.5 transition">
+                            <i class="fas fa-rotate-left text-red-600 dark:text-red-400"></i>
+                            <span>Đặt lại Word</span>
+                        </button>
+                    </div>
+                </div>
+<!-- ... existing code ... -->
+        <!-- FILE / BACKSTAGE MENU OVERLAY -->
+        <div id="fileMenuModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex">
+            <div class="w-64 bg-blue-900 text-white flex flex-col p-4 shadow-2xl">
+                <div class="flex items-center gap-3 mb-8 px-2">
+                    <svg class="w-8 h-8 text-white fill-current" viewBox="0 0 24 24"><path d="M21.17 3H7.83A1.83 1.83 0 0 0 6 4.83v14.34A1.83 1.83 0 0 0 7.83 21h13.34A1.83 1.83 0 0 0 23 19.17V4.83A1.83 1.83 0 0 0 21.17 3zM12 16.5h-2l-1.5-6-1.5 6H5l-2-9h2.1l1.1 5.8 1.5-5.8h1.6l1.5 5.8 1.1-5.8H14l-2 9z"/></svg>
+                    <span class="font-semibold text-lg">Microsoft Word</span>
+                </div>
+                <nav class="flex-1 space-y-1">
+                    <button onclick="newDocument()" class="w-full text-left px-3 py-2 rounded hover:bg-blue-800 flex items-center gap-3 text-sm font-medium">
+                        <i class="fas fa-file-circle-plus"></i> Tạo văn bản mới
+                    </button>
+                    <button onclick="exportWordDocument()" class="w-full text-left px-3 py-2 rounded hover:bg-blue-800 flex items-center gap-3 text-sm font-medium">
+                        <i class="fas fa-file-word"></i> Xuất ra file Docx/HTML
+                    </button>
+                    <button onclick="openWatermarkModal()" class="w-full text-left px-3 py-2 rounded hover:bg-blue-800 flex items-center gap-3 text-sm font-medium">
+                        <i class="fas fa-stamp"></i> Thêm Chìm Watermark
+                    </button>
+                    <button onclick="openResetModal(); closeFileMenu();" class="w-full text-left px-3 py-2 rounded hover:bg-red-800/80 bg-red-900/40 text-red-200 flex items-center gap-3 text-sm font-medium mt-4">
+                        <i class="fas fa-rotate-left text-red-400"></i> Đặt lại / Reset Văn bản
+                    </button>
+                </nav>
+                <button onclick="closeFileMenu()" class="mt-auto px-3 py-2 border border-blue-700 hover:bg-blue-800 rounded text-xs text-slate-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-arrow-left"></i> Quay lại làm việc
+                </button>
+            </div>
+            <div class="flex-1" onclick="closeFileMenu()"></div>
+        </div>
+
+        <!-- RESET CONFIRMATION MODAL -->
+        <div id="resetModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-gray-700 animate-in fade-in zoom-in duration-150">
+                <div class="p-5 border-b border-slate-100 dark:border-gray-700 flex items-center justify-between bg-slate-50 dark:bg-gray-800/50">
+                    <div class="flex items-center gap-3 text-red-600 dark:text-red-400">
+                        <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                            <i class="fas fa-triangle-exclamation text-lg"></i>
+                        </div>
+                        <h3 class="font-semibold text-base text-gray-900 dark:text-white">Đặt lại Văn bản & Tùy chọn</h3>
+                    </div>
+                    <button onclick="closeResetModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <i class="fas fa-xmark text-lg"></i>
+                    </button>
                 </div>
                 
-                <div class="onedrive-meter">
-                    <div>Lưu trữ OneDrive (15 GB)</div>
-                    <div class="meter-bar"><div class="meter-fill"></div></div>
-                    <div style="font-size: 10px; color: #605e5c; margin-top: 3px;">Đã dùng 3.8 GB / 15 GB</div>
-                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Bạn có chắc chắn muốn đặt lại / xóa toàn bộ nội dung văn bản về mặc định không?
+                    </p>
+                    
+                    <div class="space-y-3 pt-2">
+                        <div class="p-3 border rounded-lg border-slate-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-700 bg-slate-50/50 dark:bg-gray-700/30 cursor-pointer flex items-start gap-3 transition" onclick="confirmReset('docOnly')">
+                            <input type="radio" name="resetOption" id="resetDocOnly" checked class="mt-1 text-blue-600 focus:ring-blue-500">
+                            <label for="resetDocOnly" class="cursor-pointer text-xs space-y-0.5">
+                                <span class="font-semibold text-gray-800 dark:text-gray-200 block">Chỉ đặt lại nội dung văn bản</span>
+                                <span class="text-gray-500 dark:text-gray-400 block">Xóa trang trắng, vẽ canvas, comment và watermark. Giữ nguyên giao diện người dùng.</span>
+                            </label>
+                        </div>
 
-                <div class="acc-body" id="accMenuBody">
-                    <div class="acc-item" onclick="openModal('loginModal')"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</div>
-                    <div class="acc-item" onclick="openModal('registerModal')"><i class="fa-solid fa-user-plus"></i> Đăng ký tài khoản</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. Extended Ribbon Tabs -->
-    <div class="ribbon-tabs">
-        <button class="tab-btn file-tab" onclick="openModal('fileModal')">Tệp</button>
-        <button class="tab-btn active" onclick="switchTab('home', this)">Trang chủ</button>
-        <button class="tab-btn" onclick="switchTab('insert', this)">Chèn</button>
-        <button class="tab-btn" onclick="switchTab('draw', this)">Vẽ (Canvas)</button>
-        <button class="tab-btn" onclick="switchTab('layout', this)">Bố trí</button>
-        <button class="tab-btn" onclick="switchTab('references', this)">Tham chiếu</button>
-        <button class="tab-btn" onclick="switchTab('review', this)">Kiểm duyệt</button>
-        <button class="tab-btn" onclick="switchTab('view', this)">Xem</button>
-    </div>
-
-    <!-- 3. Ribbon Toolbar Panel -->
-    <div class="ribbon-toolbar">
-        <!-- HOME PANEL -->
-        <div class="ribbon-panel active" id="panel-home">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button class="tool-btn-lg" onclick="execCmd('paste')"><i class="fa-regular fa-clipboard"></i>Dán</button>
-                    <button onclick="execCmd('cut')"><i class="fa-solid fa-scissors"></i> Cắt</button>
-                    <button onclick="execCmd('copy')"><i class="fa-regular fa-copy"></i> Sao chép</button>
-                    <button onclick="copyFormat()"><i class="fa-solid fa-paint-roller"></i> Sao chép định dạng</button>
-                </div>
-                <div class="group-label">Bảng tạm</div>
-            </div>
-
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <select onchange="execCmd('fontName', this.value)" style="width: 120px;">
-                        <option value="Segoe UI" selected>Segoe UI</option>
-                        <option value="Calibri">Calibri</option>
-                        <option value="Arial">Arial</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Tahoma">Tahoma</option>
-                        <option value="Courier New">Courier New</option>
-                    </select>
-                    <select onchange="execCmd('fontSize', this.value)" style="width: 65px;">
-                        <option value="1">8 pt</option>
-                        <option value="2">10 pt</option>
-                        <option value="3" selected>12 pt</option>
-                        <option value="4">14 pt</option>
-                        <option value="5">18 pt</option>
-                        <option value="6">24 pt</option>
-                        <option value="7">36 pt</option>
-                    </select>
-                    <button onclick="changeFontSizeDelta(1)" title="Tăng cỡ chữ"><i class="fa-solid fa-font"></i><sup>+</sup></button>
-                    <button onclick="changeFontSizeDelta(-1)" title="Giảm cỡ chữ"><i class="fa-solid fa-font"></i><sup>-</sup></button>
-                    <select onchange="changeCase(this.value)" style="width: 75px;" title="Chuyển đổi kiểu chữ">
-                        <option value="">Aa</option>
-                        <option value="upper">UPPERCASE</option>
-                        <option value="lower">lowercase</option>
-                        <option value="title">Title Case</option>
-                    </select>
-                    <button onclick="execCmd('removeFormat')" title="Xóa định dạng"><i class="fa-solid fa-remove-format"></i></button>
-                </div>
-                <div class="group-buttons">
-                    <button class="tool-btn" onclick="execCmd('bold')" title="In đậm"><b>B</b></button>
-                    <button class="tool-btn" onclick="execCmd('italic')" title="In nghiêng"><i>I</i></button>
-                    <button class="tool-btn" onclick="execCmd('underline')" title="Gạch chân"><u>U</u></button>
-                    <button class="tool-btn" onclick="execCmd('strikeThrough')" title="Gạch ngang"><s>S</s></button>
-                    <button class="tool-btn" onclick="execCmd('subscript')">X<sub>2</sub></button>
-                    <button class="tool-btn" onclick="execCmd('superscript')">X<sup>2</sup></button>
-                    <input type="color" onchange="execCmd('foreColor', this.value)" title="Màu chữ">
-                    <input type="color" onchange="execCmd('hiliteColor', this.value)" title="Màu tô văn bản" value="#ffff00">
-                </div>
-                <div class="group-label">Phông chữ</div>
-            </div>
-
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="execCmd('insertUnorderedList')"><i class="fa-solid fa-list-ul"></i></button>
-                    <button onclick="execCmd('insertOrderedList')"><i class="fa-solid fa-list-ol"></i></button>
-                    <button onclick="execCmd('outdent')"><i class="fa-solid fa-outdent"></i></button>
-                    <button onclick="execCmd('indent')"><i class="fa-solid fa-indent"></i></button>
-                    <input type="color" onchange="setShadingColor(this.value)" title="Tô màu nền đoạn văn">
-                </div>
-                <div class="group-buttons">
-                    <button onclick="execCmd('justifyLeft')"><i class="fa-solid fa-align-left"></i></button>
-                    <button onclick="execCmd('justifyCenter')"><i class="fa-solid fa-align-center"></i></button>
-                    <button onclick="execCmd('justifyRight')"><i class="fa-solid fa-align-right"></i></button>
-                    <button onclick="execCmd('justifyFull')"><i class="fa-solid fa-align-justify"></i></button>
-                    <select onchange="changeLineSpacing(this.value)" style="width: 65px;" title="Giãn dòng">
-                        <option value="1.0">1.0</option>
-                        <option value="1.15" selected>1.15</option>
-                        <option value="1.5">1.5</option>
-                        <option value="2.0">2.0</option>
-                        <option value="3.0">3.0</option>
-                    </select>
-                </div>
-                <div class="group-label">Đoạn văn</div>
-            </div>
-
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <div class="style-preset-btn" onclick="applyHeading('p')">
-                        <span style="font-size:11px;">Thường</span>
-                        <span style="font-size:9px; color:#605e5c;">AaBbCc</span>
-                    </div>
-                    <div class="style-preset-btn" onclick="applyHeading('h1')">
-                        <span style="font-size:11px; font-weight:bold; color:var(--word-blue);">Heading 1</span>
-                        <span style="font-size:9px; color:#605e5c;">AaBbCc</span>
-                    </div>
-                    <div class="style-preset-btn" onclick="applyHeading('h2')">
-                        <span style="font-size:11px; font-weight:bold; color:#2e7d32;">Heading 2</span>
-                        <span style="font-size:9px; color:#605e5c;">AaBbCc</span>
-                    </div>
-                    <div class="style-preset-btn" onclick="applyHeading('h3')">
-                        <span style="font-size:11px; font-weight:bold; color:#d83b01;">Heading 3</span>
-                        <span style="font-size:9px; color:#605e5c;">AaBbCc</span>
+                        <div class="p-3 border rounded-lg border-slate-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-700 bg-slate-50/50 dark:bg-gray-700/30 cursor-pointer flex items-start gap-3 transition" onclick="confirmReset('fullApp')">
+                            <input type="radio" name="resetOption" id="resetFullApp" class="mt-1 text-blue-600 focus:ring-blue-500">
+                            <label for="resetFullApp" class="cursor-pointer text-xs space-y-0.5">
+                                <span class="font-semibold text-red-600 dark:text-red-400 block">Đặt lại toàn bộ ứng dụng & LocalStorage</span>
+                                <span class="text-gray-500 dark:text-gray-400 block">Khôi phục cài đặt gốc, zoom, thước đo, giao diện sáng/tối và bộ nhớ trình duyệt.</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <div class="group-label">Kiểu dáng (Styles)</div>
-            </div>
 
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="openModal('findReplaceModal')"><i class="fa-solid fa-binoculars"></i> Tìm & Thay thế</button>
-                    <button onclick="openModal('statsModal')"><i class="fa-solid fa-chart-simple"></i> Thống kê</button>
-                </div>
-                <div class="group-buttons">
-                    <button onclick="exportToWord()" style="background:var(--word-blue); color:white; font-weight:bold;"><i class="fa-solid fa-file-word"></i> Xuất .DOC</button>
-                </div>
-                <div class="group-label">Biên tập</div>
-            </div>
-        </div>
-
-        <!-- INSERT PANEL -->
-        <div class="ribbon-panel" id="panel-insert">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button class="tool-btn-lg" onclick="insertCoverPage()"><i class="fa-solid fa-file-lines"></i>Trang bìa</button>
-                    <button class="tool-btn-lg" onclick="insertPageBreak()"><i class="fa-solid fa-page-break"></i>Ngắt trang</button>
-                    <button class="tool-btn-lg" onclick="insertTable()"><i class="fa-solid fa-table"></i>Bảng</button>
-                    <button class="tool-btn-lg" onclick="triggerFileUpload()"><i class="fa-regular fa-image"></i>Hình ảnh</button>
-                    <input type="file" id="fileImageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
-                </div>
-                <div class="group-label">Bảng & Hình ảnh</div>
-            </div>
-
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="insertShape('rect')"><i class="fa-regular fa-square"></i> Hình chữ nhật</button>
-                    <button onclick="insertShape('circle')"><i class="fa-regular fa-circle"></i> Hình tròn</button>
-                    <button onclick="insertShape('star')"><i class="fa-regular fa-star"></i> Ngôi sao</button>
-                    <button onclick="insertShape('arrow')"><i class="fa-solid fa-arrow-right"></i> Mũi tên</button>
-                    <button onclick="insertChart()"><i class="fa-solid fa-chart-column"></i> Biểu đồ</button>
-                </div>
-                <div class="group-buttons">
-                    <button onclick="insertTextBox()"><i class="fa-solid fa-font"></i> Khung chữ</button>
-                    <button onclick="insertWordArt()"><i class="fa-solid fa-wand-magic-sparkles"></i> WordArt</button>
-                    <button onclick="insertLink()"><i class="fa-solid fa-link"></i> Liên kết</button>
-                    <button onclick="addComment()"><i class="fa-regular fa-comment-dots"></i> Ghi chú</button>
-                </div>
-                <div class="group-label">Hình vẽ & Tiện ích</div>
-            </div>
-
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="openModal('symbolModal')"><i class="fa-solid fa-omega"></i> Ký tự đặc biệt</button>
-                    <button onclick="insertDateTime()"><i class="fa-regular fa-clock"></i> Ngày giờ</button>
-                    <button onclick="insertHorizontalRule()"><i class="fa-solid fa-minus"></i> Đường phân cách</button>
-                </div>
-                <div class="group-label">Ký hiệu</div>
-            </div>
-        </div>
-
-        <!-- DRAW PANEL -->
-        <div class="ribbon-panel" id="panel-draw">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button id="drawToggleBtn" onclick="toggleDrawingMode()"><i class="fa-solid fa-pen-nib"></i> Bật chế độ vẽ</button>
-                    <select id="drawColorSelect" onchange="setDrawColor(this.value)">
-                        <option value="#ff0000">🔴 Đỏ</option>
-                        <option value="#0078d4" selected>🔵 Xanh Word</option>
-                        <option value="#000000">⚫ Đen</option>
-                        <option value="#ffeb3b">🟡 Highlight</option>
-                    </select>
-                    <select id="drawWidthSelect" onchange="setDrawWidth(this.value)">
-                        <option value="2">Nét mảnh (2px)</option>
-                        <option value="4" selected>Nét vừa (4px)</option>
-                        <option value="8">Nét dày (8px)</option>
-                    </select>
-                    <button onclick="clearCanvas()"><i class="fa-solid fa-trash-can"></i> Xóa nét vẽ</button>
-                </div>
-                <div class="group-label">Vẽ & Cảm ứng trên trang</div>
-            </div>
-        </div>
-
-        <!-- LAYOUT PANEL -->
-        <div class="ribbon-panel" id="panel-layout">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <select onchange="changeOrientation(this.value)">
-                        <option value="portrait">Hướng Dọc (Portrait)</option>
-                        <option value="landscape">Hướng Ngang (Landscape)</option>
-                    </select>
-                    <select onchange="changePaperSize(this.value)">
-                        <option value="A4" selected>Khổ A4</option>
-                        <option value="Letter">Khổ Letter</option>
-                        <option value="Legal">Khổ Legal</option>
-                        <option value="A3">Khổ A3</option>
-                    </select>
-                </div>
-                <div class="group-buttons">
-                    <select onchange="changeMargins(this.value)">
-                        <option value="normal" selected>Lề Chuẩn (2.54 cm)</option>
-                        <option value="narrow">Lề Hẹp (1.27 cm)</option>
-                        <option value="moderate">Lề Vừa (1.91 cm)</option>
-                        <option value="wide">Lề Rộng (5.08 cm)</option>
-                    </select>
-                    <select onchange="changeColumns(this.value)" style="width: 100px;">
-                        <option value="1" selected>1 Cột</option>
-                        <option value="2">2 Cột</option>
-                        <option value="3">3 Cột</option>
-                    </select>
-                    <button onclick="promptWatermark()"><i class="fa-solid fa-stamp"></i> Watermark</button>
-                </div>
-                <div class="group-label">Định dạng trang</div>
-            </div>
-        </div>
-
-        <!-- REFERENCES PANEL -->
-        <div class="ribbon-panel" id="panel-references">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="insertTableOfContents()"><i class="fa-solid fa-book"></i> Chèn Mục lục tự động</button>
-                    <button onclick="insertFootnote()"><i class="fa-solid fa-asterisk"></i> Chèn Chú thích (Footnote)</button>
-                    <button onclick="insertEndnote()"><i class="fa-solid fa-bookmark"></i> Chèn Endnote</button>
-                </div>
-                <div class="group-label">Mục lục & Chú thích</div>
-            </div>
-        </div>
-
-        <!-- REVIEW PANEL -->
-        <div class="ribbon-panel" id="panel-review">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="runSpellCheck()"><i class="fa-solid fa-spell-check"></i> Kiểm tra chính tả</button>
-                    <button onclick="toggleTrackChanges()"><i class="fa-solid fa-code-compare"></i> Theo dõi thay đổi</button>
-                    <button onclick="openModal('statsModal')"><i class="fa-solid fa-calculator"></i> Đếm từ chi tiết</button>
-                </div>
-                <div class="group-label">Kiểm duyệt</div>
-            </div>
-        </div>
-
-        <!-- VIEW PANEL -->
-        <div class="ribbon-panel" id="panel-view">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="toggleReadMode()"><i class="fa-solid fa-book-open"></i> Chế độ đọc</button>
-                    <button onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i> Đêm / Sáng</button>
-                    <button onclick="toggleRulers()"><i class="fa-solid fa-ruler"></i> Thước đo</button>
-                    <button onclick="toggleGridlines()"><i class="fa-solid fa-border-all"></i> Lưới ô vuông</button>
-                    <button onclick="toggleCommentsSidebar()"><i class="fa-regular fa-comments"></i> Bật/Tắt Ghi chú</button>
-                    <button onclick="toggleFullscreen()"><i class="fa-solid fa-expand"></i> Toàn màn hình</button>
-                </div>
-                <div class="group-buttons">
-                    <label style="font-size:12px;">Thu phóng: </label>
-                    <input type="range" min="50" max="200" value="100" oninput="changeZoom(this.value)" style="width:100px;">
-                    <span id="zoomVal">100%</span>
-                </div>
-                <div class="group-label">Hiển thị & Thu phóng</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Live Rulers -->
-    <div class="ruler-h-container" id="rulerContainer">
-        <div class="ruler-h">
-            <div class="ruler-tick"></div><div class="ruler-tick"></div><div class="ruler-tick"></div><div class="ruler-tick"></div>
-            <div class="ruler-tick"></div><div class="ruler-tick"></div><div class="ruler-tick"></div><div class="ruler-tick"></div>
-            <div class="ruler-tick"></div><div class="ruler-tick"></div><div class="ruler-tick"></div><div class="ruler-tick"></div>
-        </div>
-    </div>
-
-    <!-- Main Workspace Viewport -->
-    <div class="main-workspace">
-        <div class="viewport" id="viewport">
-            <div class="document-page-wrap" id="paperWrap">
-                <!-- Vertical Ruler -->
-                <div class="ruler-v" id="rulerV">
-                    <div class="ruler-v-tick"></div><div class="ruler-v-tick"></div><div class="ruler-v-tick"></div>
-                    <div class="ruler-v-tick"></div><div class="ruler-v-tick"></div><div class="ruler-v-tick"></div>
-                </div>
-
-                <!-- Header Zone -->
-                <div class="header-zone" contenteditable="true" id="headerZone">Đầu trang (Header) - Nhấp để chỉnh sửa</div>
-
-                <!-- Canvas Draw Overlay -->
-                <canvas id="drawCanvas"></canvas>
-
-                <!-- Document Page Content Area -->
-                <div class="document-page" contenteditable="true" id="editor" oninput="saveAndStats()" spellcheck="false">
-                    <h1 style="color:var(--word-blue); margin-bottom: 12px;">Chào mừng bạn đến với Microsoft Word 365 Web!</h1>
-                    <p>Ứng dụng đã tích hợp đầy đủ tính năng chuẩn Microsoft Office 365 trực tuyến. Bạn có thể:</p>
-                    <ul style="margin-left: 20px; margin-top: 8px;">
-                        <li>Soạn thảo văn bản rich text với đầy đủ thanh công cụ Ribbon đa dạng.</li>
-                        <li>Chèn Bảng, Hình ảnh, Khung chữ, Ký tự đặc biệt, Biểu đồ & Đường phân cách.</li>
-                        <li>Chế độ Vẽ cảm ứng trực tiếp lên trang văn bản.</li>
-                        <li>Hệ thống lưu trữ nhiều tài khoản người dùng độc lập qua LocalStorage.</li>
-                        <li>Sử dụng thanh tìm kiếm "Tell Me" thông minh để kích hoạt nhanh lệnh.</li>
-                        <li>Phím tắt đầy đủ (Ctrl+B, Ctrl+I, Ctrl+U, Ctrl+Z, Ctrl+Y, Ctrl+S, Ctrl+P, Ctrl+F).</li>
-                    </ul>
-                </div>
-
-                <!-- Footer Zone -->
-                <div class="footer-zone" contenteditable="true" id="footerZone">Chân trang (Footer) - Nhấp để chỉnh sửa</div>
-
-                <!-- Watermark -->
-                <div class="watermark" id="watermarkText" style="display:none;">BẢN NHÁP - DRAFT</div>
-            </div>
-        </div>
-
-        <!-- Comments / Annotations Sidebar -->
-        <div class="comments-sidebar" id="commentsSidebar">
-            <div class="sidebar-header">
-                <span><i class="fa-regular fa-comments"></i> Ghi chú & Nhận xét</span>
-                <button onclick="toggleCommentsSidebar()" style="border:none; background:none; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="sidebar-content" id="commentsContent">
-                <div class="comment-card">
-                    <div class="comment-author">Hệ thống Word 365</div>
-                    <div class="comment-text">Chào mừng bạn! Thêm ghi chú mới bất kỳ lúc nào từ thanh công cụ Chèn.</div>
-                    <div class="comment-date">Vừa xong</div>
+                <div class="p-4 bg-slate-50 dark:bg-gray-800/80 border-t border-slate-100 dark:border-gray-700 flex justify-end gap-2">
+                    <button onclick="closeResetModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-xs font-medium transition">
+                        Hủy bỏ
+                    </button>
+                    <button onclick="executeReset()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                        <i class="fas fa-rotate-left"></i> Xác nhận Đặt lại
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Status Bar -->
-    <div class="status-bar">
-        <div class="status-left">
-            <div class="status-item" onclick="openModal('statsModal')"><i class="fa-regular fa-file-lines"></i> Trang <span id="pageCountStat">1</span> / 1</div>
-            <div class="status-item" id="wordCountStat" onclick="openModal('statsModal')">0 từ | 0 ký tự</div>
-        </div>
-        <div class="status-right">
-            <div class="status-item" id="langStat" onclick="toggleLanguage()"><i class="fa-solid fa-earth-americas"></i> Tiếng Việt (Việt Nam)</div>
-            <div class="status-item"><i class="fa-solid fa-check-double"></i> Sẵn sàng</div>
-            <div class="status-item"><span id="zoomStatus">100%</span></div>
-        </div>
-    </div>
-
-    <!-- Modal File / Overview -->
-    <div class="modal-overlay" id="fileModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span style="display:flex; align-items:center; gap:8px;">
-                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
-                    Quản lý Tệp - Microsoft Word 365
-                </span>
-                <button class="modal-close" onclick="closeModal('fileModal')">✕</button>
-            </div>
-            <p style="font-size: 13px; margin-bottom: 12px; color: #605e5c;">Chọn thao tác đối với tài liệu hiện tại:</p>
-            <button class="btn-primary" onclick="createNewDoc()"><i class="fa-solid fa-plus"></i> Tạo tài liệu mới</button>
-            <button class="btn-primary" onclick="downloadTxt()" style="background:#0078d4;"><i class="fa-solid fa-file-lines"></i> Tải về dạng Text (.txt)</button>
-            <button class="btn-primary" onclick="downloadHtml()" style="background:#2e7d32;"><i class="fa-solid fa-code"></i> Tải về dạng HTML (.html)</button>
-            <button class="btn-primary" onclick="exportToWord()" style="background:#2b579a;"><i class="fa-solid fa-file-word"></i> Xuất ra File Word (.doc)</button>
-            <button class="btn-primary" onclick="window.print()" style="background:#5c2d91;"><i class="fa-solid fa-print"></i> In / Xuất PDF</button>
-        </div>
-    </div>
-
-    <!-- Modal Find & Replace -->
-    <div class="modal-overlay" id="findReplaceModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span style="display:flex; align-items:center; gap:8px;">
-                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
-                    Tìm kiếm & Thay thế
-                </span>
-                <button class="modal-close" onclick="closeModal('findReplaceModal')">✕</button>
-            </div>
-            <div class="form-group">
-                <label>Nội dung tìm kiếm:</label>
-                <input type="text" id="findInput" placeholder="Nhập từ cần tìm...">
-            </div>
-            <div class="form-group">
-                <label>Thay thế bằng:</label>
-                <input type="text" id="replaceInput" placeholder="Nhập văn bản thay thế...">
-            </div>
-            <button class="btn-primary" onclick="performReplace()">Thay thế tất cả</button>
-        </div>
-    </div>
-
-    <!-- Modal Document Stats -->
-    <div class="modal-overlay" id="statsModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span style="display:flex; align-items:center; gap:8px;">
-                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
-                    Thống kê Tài liệu
-                </span>
-                <button class="modal-close" onclick="closeModal('statsModal')">✕</button>
-            </div>
-            <div style="font-size:13px; line-height: 1.8;" id="statsModalBody">
-                <!-- Dynamic Content -->
-            </div>
-            <button class="btn-primary" onclick="closeModal('statsModal')">Đóng</button>
-        </div>
-    </div>
-
-    <!-- Modal Symbol Picker -->
-    <div class="modal-overlay" id="symbolModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span style="display:flex; align-items:center; gap:8px;">
-                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
-                    Chèn Ký Tự Đặc Biệt
-                </span>
-                <button class="modal-close" onclick="closeModal('symbolModal')">✕</button>
-            </div>
-            <div class="symbol-grid">
-                <div class="symbol-item" onclick="insertSymbol('★')">★</div>
-                <div class="symbol-item" onclick="insertSymbol('✔')">✔</div>
-                <div class="symbol-item" onclick="insertSymbol('©')">©</div>
-                <div class="symbol-item" onclick="insertSymbol('®')">®</div>
-                <div class="symbol-item" onclick="insertSymbol('™')">™</div>
-                <div class="symbol-item" onclick="insertSymbol('∞')">∞</div>
-                <div class="symbol-item" onclick="insertSymbol('∑')">∑</div>
-                <div class="symbol-item" onclick="insertSymbol('Ω')">Ω</div>
-                <div class="symbol-item" onclick="insertSymbol('π')">π</div>
-                <div class="symbol-item" onclick="insertSymbol('∆')">∆</div>
-                <div class="symbol-item" onclick="insertSymbol('€')">€</div>
-                <div class="symbol-item" onclick="insertSymbol('£')">£</div>
-                <div class="symbol-item" onclick="insertSymbol('¥')">¥</div>
-                <div class="symbol-item" onclick="insertSymbol('§')">§</div>
-                <div class="symbol-item" onclick="insertSymbol('¶')">¶</div>
-                <div class="symbol-item" onclick="insertSymbol('•')">•</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Login -->
-    <div class="modal-overlay" id="loginModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span style="display:flex; align-items:center; gap:8px;">
-                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
-                    Đăng nhập Microsoft 365
-                </span>
-                <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
-            </div>
-            <div class="form-group">
-                <label>Email / Tên đăng nhập:</label>
-                <input type="text" id="loginEmail" placeholder="user@office365.com">
-            </div>
-            <div class="form-group">
-                <label>Mật khẩu:</label>
-                <input type="password" id="loginPass" placeholder="••••••••">
-            </div>
-            <button class="btn-primary" onclick="login()">Đăng nhập</button>
-        </div>
-    </div>
-
-    <!-- Modal Register -->
-    <div class="modal-overlay" id="registerModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span style="display:flex; align-items:center; gap:8px;">
-                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
-                    Đăng ký Tài khoản Mới
-                </span>
-                <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
-            </div>
-            <div class="form-group">
-                <label>Họ và Tên:</label>
-                <input type="text" id="regName" placeholder="Nguyễn Văn A">
-            </div>
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="email" id="regEmail" placeholder="user@office365.com">
-            </div>
-            <div class="form-group">
-                <label>Mật khẩu:</label>
-                <input type="password" id="regPass" placeholder="••••••••">
-            </div>
-            <button class="btn-primary" onclick="register()">Đăng ký & Đăng nhập</button>
-        </div>
-    </div>
-
+<!-- ... existing code ... -->
     <script>
-        // State Management
-        let currentUser = null;
-        let isDrawing = false;
-        let drawingMode = false;
-        let drawColor = '#0078d4';
-        let drawWidth = 4;
-        let canvas, ctx;
-        let copiedFormat = null;
-        let currentLang = 'vi';
+        // --- RESET FUNCTIONALITY IMPLEMENTATION --- //
+        let selectedResetType = 'docOnly';
 
-        const quickCommands = [
-            { name: "In đậm (Bold)", action: () => execCmd('bold') },
-            { name: "In nghiêng (Italic)", action: () => execCmd('italic') },
-            { name: "Chèn Bảng (Insert Table)", action: () => insertTable() },
-            { name: "Bật chế độ vẽ (Canvas Draw)", action: () => toggleDrawingMode() },
-            { name: "Chế độ tối (Dark Mode)", action: () => toggleDarkMode() },
-            { name: "Xuất file Word (.doc)", action: () => exportToWord() },
-            { name: "In tài liệu (Print)", action: () => window.print() }
-        ];
-
-        window.onload = function() {
-            initCanvas();
-            loadUserData();
-            saveAndStats();
-            setupShortcuts();
-
-            // Hide startup splash screen
-            setTimeout(() => {
-                const splash = document.getElementById('splashScreen');
-                if (splash) splash.classList.add('hidden');
-            }, 600);
-        };
-
-        // Keyboard Shortcuts
-        function setupShortcuts() {
-            document.addEventListener('keydown', function(e) {
-                if (e.ctrlKey || e.metaKey) {
-                    switch(e.key.toLowerCase()) {
-                        case 'b': e.preventDefault(); execCmd('bold'); break;
-                        case 'i': e.preventDefault(); execCmd('italic'); break;
-                        case 'u': e.preventDefault(); execCmd('underline'); break;
-                        case 'z': e.preventDefault(); execCmd('undo'); break;
-                        case 'y': e.preventDefault(); execCmd('redo'); break;
-                        case 's': e.preventDefault(); saveDocumentState(); alert('Đã lưu tài liệu thành công!'); break;
-                        case 'p': e.preventDefault(); window.print(); break;
-                        case 'f': e.preventDefault(); openModal('findReplaceModal'); break;
-                    }
-                }
-            });
+        function openResetModal() {
+            document.getElementById('resetModal').classList.remove('hidden');
         }
 
-        // Ribbon Tab Switcher
-        function switchTab(tabName, element) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.ribbon-panel').forEach(panel => panel.classList.remove('active'));
-            element.classList.add('active');
-            document.getElementById('panel-' + tabName).classList.add('active');
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.add('hidden');
         }
 
-        // Rich Text Execution
-        function execCmd(cmd, value = null) {
-            document.execCommand(cmd, false, value);
-            document.getElementById('editor').focus();
-            saveAndStats();
+        function confirmReset(type) {
+            selectedResetType = type;
+            document.getElementById('resetDocOnly').checked = (type === 'docOnly');
+            document.getElementById('resetFullApp').checked = (type === 'fullApp');
         }
 
-        function changeFontSizeDelta(delta) {
-            document.execCommand('fontSize', false, delta > 0 ? '5' : '2');
-        }
-
-        function changeCase(type) {
-            const sel = window.getSelection();
-            if (!sel.rangeCount) return;
-            let txt = sel.toString();
-            if (!txt) return;
-            if (type === 'upper') txt = txt.toUpperCase();
-            if (type === 'lower') txt = txt.toLowerCase();
-            if (type === 'title') txt = txt.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
-            execCmd('insertText', txt);
-        }
-
-        function applyHeading(tag) {
-            document.execCommand('formatBlock', false, tag);
-        }
-
-        function changeLineSpacing(val) {
-            document.getElementById('editor').style.lineHeight = val;
-        }
-
-        function setShadingColor(color) {
-            const sel = window.getSelection();
-            if (sel.rangeCount > 0) {
-                const parent = sel.anchorNode.parentElement;
-                if (parent) parent.style.backgroundColor = color;
-            }
-        }
-
-        function copyFormat() {
-            alert("Đã sao chép định dạng của đoạn văn bản được chọn!");
-        }
-
-        // Quick Search / Tell Me
-        function handleQuickSearch(e) {
-            const query = e.target.value.toLowerCase().trim();
-            const resultsDropdown = document.getElementById('searchResults');
-            if (!query) {
-                resultsDropdown.style.display = 'none';
-                return;
-            }
-
-            const matches = quickCommands.filter(c => c.name.toLowerCase().includes(query));
-            if (matches.length > 0) {
-                resultsDropdown.innerHTML = matches.map((m, idx) => `
-                    <div class="search-item" onclick="runSearchCmd(${idx})">
-                        <i class="fa-solid fa-play" style="font-size:10px; color:var(--word-blue);"></i> ${m.name}
-                    </div>
-                `).join('');
-                resultsDropdown.style.display = 'block';
-            } else {
-                resultsDropdown.style.display = 'none';
-            }
-        }
-
-        function runSearchCmd(idx) {
-            quickCommands[idx].action();
-            document.getElementById('searchResults').style.display = 'none';
-            document.getElementById('quickSearchInput').value = '';
-        }
-
-        // Canvas Drawing Setup
-        function initCanvas() {
-            canvas = document.getElementById('drawCanvas');
-            ctx = canvas.getContext('2d');
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseleave', stopDrawing);
-        }
-
-        function resizeCanvas() {
-            const page = document.getElementById('editor');
-            canvas.width = page.clientWidth;
-            canvas.height = page.clientHeight;
-        }
-
-        function toggleDrawingMode() {
-            drawingMode = !drawingMode;
-            const btn = document.getElementById('drawToggleBtn');
-            const canvasEl = document.getElementById('drawCanvas');
-            if (drawingMode) {
-                btn.classList.add('btn-active');
-                canvasEl.classList.add('active');
-            } else {
-                btn.classList.remove('btn-active');
-                canvasEl.classList.remove('active');
-            }
-        }
-
-        function setDrawColor(color) { drawColor = color; }
-        function setDrawWidth(w) { drawWidth = w; }
-
-        function startDrawing(e) {
-            if (!drawingMode) return;
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        }
-
-        function draw(e) {
-            if (!isDrawing || !drawingMode) return;
-            const rect = canvas.getBoundingClientRect();
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.strokeStyle = drawColor;
-            ctx.lineWidth = drawWidth;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-        }
-
-        function stopDrawing() { isDrawing = false; }
-        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-        // Page Layout Tools
-        function changeOrientation(val) {
-            if (val === 'landscape') {
-                document.documentElement.style.setProperty('--paper-width', '1056px');
-                document.documentElement.style.setProperty('--paper-min-height', '816px');
-            } else {
-                document.documentElement.style.setProperty('--paper-width', '816px');
-                document.documentElement.style.setProperty('--paper-min-height', '1056px');
-            }
-            setTimeout(resizeCanvas, 200);
-        }
-
-        function changePaperSize(val) {
-            if (val === 'Letter') document.documentElement.style.setProperty('--paper-width', '850px');
-            else if (val === 'Legal') document.documentElement.style.setProperty('--paper-width', '816px');
-            else if (val === 'A3') document.documentElement.style.setProperty('--paper-width', '1100px');
-            else document.documentElement.style.setProperty('--paper-width', '816px');
-            setTimeout(resizeCanvas, 200);
-        }
-
-        function changeMargins(val) {
-            const page = document.getElementById('editor');
-            if (val === 'narrow') page.style.padding = '48px';
-            else if (val === 'moderate') page.style.padding = '72px';
-            else if (val === 'wide') page.style.padding = '150px';
-            else page.style.padding = '96px';
-        }
-
-        function changeColumns(cols) {
+        function executeReset() {
             const editor = document.getElementById('editor');
-            editor.classList.remove('cols-2', 'cols-3');
-            if (cols === '2') editor.classList.add('cols-2');
-            if (cols === '3') editor.classList.add('cols-3');
-        }
-
-        function promptWatermark() {
-            const text = prompt("Nhập văn bản cho Watermark:", "BẢN NHÁP - DRAFT");
-            const wm = document.getElementById('watermarkText');
-            if (text) {
-                wm.innerText = text;
-                wm.style.display = 'block';
-            } else {
-                wm.style.display = 'none';
-            }
-        }
-
-        function toggleReadMode() {
-            document.getElementById('editor').classList.toggle('read-mode');
-        }
-
-        function toggleDarkMode() {
-            document.getElementById('editor').classList.toggle('dark-mode');
-        }
-
-        function toggleRulers() {
-            const rh = document.getElementById('rulerContainer');
-            const rv = document.getElementById('rulerV');
-            rh.style.display = rh.style.display === 'none' ? 'flex' : 'none';
-            rv.style.display = rv.style.display === 'none' ? 'flex' : 'none';
-        }
-
-        function toggleGridlines() {
-            document.getElementById('editor').classList.toggle('gridlines');
-        }
-
-        function toggleCommentsSidebar() {
-            document.getElementById('commentsSidebar').classList.toggle('collapsed');
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
-        }
-
-        function changeZoom(val) {
-            document.getElementById('editor').style.transform = `scale(${val / 100})`;
-            document.getElementById('zoomVal').innerText = val + '%';
-            document.getElementById('zoomStatus').innerText = val + '%';
-        }
-
-        // Insert Options
-        function insertCoverPage() {
-            const coverHtml = `
-                <div style="border-bottom: 4px solid var(--word-blue); padding-bottom: 20px; margin-bottom: 30px;">
-                    <h1 style="font-size: 32px; color: var(--word-blue-dark);">TIÊU ĐỀ TÀI LIỆU CỦA BẠN</h1>
-                    <p style="font-size: 16px; color: #605e5c;">Mô tả ngắn gọn hoặc phụ đề tài liệu</p>
-                </div>
-            `;
-            execCmd('insertHTML', coverHtml);
-        }
-
-        function insertPageBreak() {
-            execCmd('insertHTML', '<div style="page-break-after: always; border-bottom: 2px dashed #0078d4; margin: 20px 0; text-align: center; color: #0078d4; font-size: 11px;">--- NGẮT TRANG (PAGE BREAK) ---</div><p><br></p>');
-        }
-
-        function insertTable() {
-            const rows = prompt("Nhập số hàng:", "3");
-            const cols = prompt("Nhập số cột:", "3");
-            if (rows && cols) {
-                let html = "<table style='width:100%; border-collapse:collapse; margin:12px 0;'>";
-                for (let i = 0; i < parseInt(rows); i++) {
-                    html += "<tr>";
-                    for (let j = 0; j < parseInt(cols); j++) {
-                        html += "<td style='border:1px solid #a19f9d; padding:8px;'>Ô</td>";
-                    }
-                    html += "</tr>";
-                }
-                html += "</table><p><br></p>";
-                execCmd('insertHTML', html);
-            }
-        }
-
-        function insertShape(type) {
-            let shapeHtml = '';
-            if (type === 'rect') shapeHtml = `<div style="width:120px; height:80px; background:#0078d4; display:inline-block; margin:8px;"></div>`;
-            if (type === 'circle') shapeHtml = `<div style="width:100px; height:100px; background:#107c41; border-radius:50%; display:inline-block; margin:8px;"></div>`;
-            if (type === 'star') shapeHtml = `<div style="font-size:48px; color:#ffb900; display:inline-block; margin:8px;">★</div>`;
-            if (type === 'arrow') shapeHtml = `<div style="font-size:36px; color:#d83b01; display:inline-block; margin:8px;">➔</div>`;
-            execCmd('insertHTML', shapeHtml);
-        }
-
-        function insertChart() {
-            const chartHtml = `
-                <div class="chart-box" contenteditable="false">
-                    <b>Biểu đồ doanh thu mẫu</b>
-                    <div class="chart-bar-wrap">
-                        <div class="chart-bar" style="height: 40px;" title="Q1"></div>
-                        <div class="chart-bar" style="height: 70px;" title="Q2"></div>
-                        <div class="chart-bar" style="height: 90px;" title="Q3"></div>
-                    </div>
-                </div><p><br></p>
-            `;
-            execCmd('insertHTML', chartHtml);
-        }
-
-        function insertTextBox() {
-            const boxHtml = `<div style="border:1px dashed #0078d4; padding:12px; background:#f3f2f1; width:220px; margin:8px;" contenteditable="true">Khung văn bản mới...</div>`;
-            execCmd('insertHTML', boxHtml);
-        }
-
-        function insertWordArt() {
-            const txt = prompt("Nhập chữ WordArt:", "Nghệ thuật chữ");
-            if (txt) {
-                const waHtml = `<span style="font-size: 28px; font-weight: bold; background: linear-gradient(45deg, #103f91, #0078d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${txt}</span>`;
-                execCmd('insertHTML', waHtml);
-            }
-        }
-
-        function triggerFileUpload() { document.getElementById('fileImageInput').click(); }
-        function handleImageUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    execCmd('insertImage', evt.target.result);
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function insertLink() {
-            const url = prompt("Nhập địa chỉ URL:", "https://");
-            if (url) execCmd('createLink', url);
-        }
-
-        function addComment() {
-            const note = prompt("Nhập nội dung ghi chú:");
-            if (note) {
-                const content = document.getElementById('commentsContent');
-                content.innerHTML += `
-                    <div class="comment-card">
-                        <div class="comment-author">${currentUser ? currentUser.name : 'Khách'}</div>
-                        <div class="comment-text">${note}</div>
-                        <div class="comment-date">${new Date().toLocaleTimeString()}</div>
-                    </div>
-                `;
-            }
-        }
-
-        function insertHorizontalRule() { execCmd('insertHorizontalRule'); }
-        function insertSymbol(sym) { execCmd('insertText', sym); closeModal('symbolModal'); }
-        function insertDateTime() { execCmd('insertText', new Date().toLocaleString('vi-VN')); }
-
-        function insertTableOfContents() {
-            const headings = document.getElementById('editor').querySelectorAll('h1, h2, h3');
-            if (headings.length === 0) return alert("Không tìm thấy các thẻ Heading 1, 2, 3 nào trong văn bản!");
-            let tocHtml = "<div style='background:#f3f2f1; padding:16px; border-radius:4px; margin:12px 0;'><b>MỤC LỤC TỰ ĐỘNG</b><br><ul style='margin-left:20px;'>";
-            headings.forEach((h, index) => {
-                tocHtml += `<li><a href="#h_${index}">${h.innerText}</a></li>`;
-                h.id = "h_" + index;
-            });
-            tocHtml += "</ul></div><p><br></p>";
-            execCmd('insertHTML', tocHtml);
-        }
-
-        function insertFootnote() {
-            const fnText = prompt("Nhập nội dung chú thích chân trang:", "Chú thích...");
-            if (fnText) {
-                execCmd('insertHTML', `<sup>[*]</sup>`);
-                document.getElementById('footerZone').innerHTML += `<br>[*] ${fnText}`;
-            }
-        }
-
-        function insertEndnote() {
-            const enText = prompt("Nhập nội dung Endnote ở cuối tài liệu:");
-            if (enText) {
-                execCmd('insertHTML', `<div style="border-top:1px solid #ccc; margin-top:20px; font-size:12px;"><b>[Endnote]</b> ${enText}</div>`);
-            }
-        }
-
-        function runSpellCheck() {
-            alert("Kiểm tra chính tả hoàn tất! Không tìm thấy lỗi từ ngữ.");
-        }
-
-        function toggleTrackChanges() {
-            alert("Đã bật chế độ Theo dõi Thay đổi (Track Changes).");
-        }
-
-        function createNewDoc() {
-            if (confirm("Bạn có chắc chắn muốn tạo tài liệu mới? Các thay đổi chưa lưu sẽ bị ghi đè.")) {
-                document.getElementById('editor').innerHTML = '<h1>Tài liệu mới</h1><p>Bắt đầu nhập nội dung tại đây...</p>';
-                saveAndStats();
-                closeModal('fileModal');
-            }
-        }
-
-        // Document Stats & Autosave
-        function saveAndStats() {
-            const text = document.getElementById('editor').innerText.trim();
-            const words = text === "" ? 0 : text.split(/\s+/).length;
-            const chars = text.length;
-            const charsNoSpace = text.replace(/\s+/g, '').length;
-
-            document.getElementById('wordCountStat').innerText = `${words} từ | ${chars} ký tự`;
+            const watermark = document.getElementById('watermarkDisplay');
+            const drawCanvas = document.getElementById('drawCanvas');
             
-            // Calc estimated pages based on character length
-            const pageCount = Math.max(1, Math.ceil(chars / 2500));
-            document.getElementById('pageCountStat').innerText = pageCount;
+            if (selectedResetType === 'docOnly' || selectedResetType === 'fullApp') {
+                // Clear Document Content & Reset Page Setup
+                editor.innerHTML = '<p>Nhập nội dung văn bản của bạn tại đây...</p>';
+                watermark.innerText = '';
+                
+                // Clear Draw Canvas
+                if (drawCanvas) {
+                    const ctx = drawCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+                }
 
-            saveDocumentState();
-        }
+                // Reset document title
+                document.getElementById('docTitleDisplay').innerText = 'Văn bản chưa đặt tên - Word';
 
-        function saveDocumentState() {
-            const userKey = currentUser ? currentUser.email : 'guest';
-            const docData = {
-                title: document.getElementById('docTitleInput').value,
-                content: document.getElementById('editor').innerHTML,
-                header: document.getElementById('headerZone').innerHTML,
-                footer: document.getElementById('footerZone').innerHTML
-            };
-            localStorage.setItem('word_365_user_' + userKey, JSON.stringify(docData));
-            document.getElementById('saveStatus').innerHTML = '<i class="fa-solid fa-cloud"></i> Đã lưu vào OneDrive';
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'vi' ? 'en' : 'vi';
-            document.getElementById('langStat').innerHTML = currentLang === 'vi' 
-                ? '<i class="fa-solid fa-earth-americas"></i> Tiếng Việt (Việt Nam)'
-                : '<i class="fa-solid fa-earth-americas"></i> English (United States)';
-        }
-
-        // Modals & User Management
-        function openModal(id) {
-            if (id === 'statsModal') updateStatsModal();
-            document.getElementById(id).classList.add('active');
-            document.getElementById('accountDropdown').classList.remove('show');
-        }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-        function updateStatsModal() {
-            const text = document.getElementById('editor').innerText.trim();
-            const words = text === "" ? 0 : text.split(/\s+/).length;
-            const chars = text.length;
-            const charsNoSpace = text.replace(/\s+/g, '').length;
-            const paragraphs = text === "" ? 0 : text.split(/\n+/).length;
-            document.getElementById('statsModalBody').innerHTML = `
-                📌 <b>Số từ:</b> ${words}<br>
-                📌 <b>Số ký tự (có khoảng trắng):</b> ${chars}<br>
-                📌 <b>Số ký tự (không khoảng trắng):</b> ${charsNoSpace}<br>
-                📌 <b>Số đoạn văn:</b> ${paragraphs}<br>
-                📌 <b>Thời gian đọc ước tính:</b> ~${Math.ceil(words / 200)} phút
-            `;
-        }
-
-        function performReplace() {
-            const find = document.getElementById('findInput').value;
-            const replace = document.getElementById('replaceInput').value;
-            if (!find) return;
-            const editor = document.getElementById('editor');
-            editor.innerHTML = editor.innerHTML.replaceAll(find, replace);
-            closeModal('findReplaceModal');
-            saveAndStats();
-        }
-
-        function toggleAccountMenu() { document.getElementById('accountDropdown').classList.toggle('show'); }
-        window.onclick = function(e) { if (!e.target.closest('.account-container')) document.getElementById('accountDropdown').classList.remove('show'); };
-
-        function register() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            if (!name || !email) return alert("Vui lòng nhập đầy đủ thông tin!");
-
-            currentUser = { name, email };
-            setUserState();
-            closeModal('registerModal');
-        }
-
-        function login() {
-            const email = document.getElementById('loginEmail').value;
-            if (!email) return alert("Vui lòng nhập Email!");
-
-            const name = email.split('@')[0];
-            currentUser = { name, email };
-            setUserState();
-            closeModal('loginModal');
-        }
-
-        function setUserState() {
-            const initial = currentUser.name.charAt(0).toUpperCase();
-            document.getElementById('userName').innerText = currentUser.name;
-            document.getElementById('userAvatar').innerText = initial;
-            document.getElementById('userBigAvatar').innerText = initial;
-            document.getElementById('accFullName').innerText = currentUser.name;
-            document.getElementById('accEmail').innerText = currentUser.email;
-
-            document.getElementById('accMenuBody').innerHTML = `
-                <div class="acc-item" onclick="alert('Dữ liệu đã tự động đồng bộ trên đấm mây OneDrive!')"><i class="fa-solid fa-cloud"></i> Đồng bộ ngay</div>
-                <div class="acc-item" style="color:red;" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</div>
-            `;
-
-            // Load saved user doc
-            const userKey = currentUser.email;
-            const saved = localStorage.getItem('word_365_user_' + userKey);
-            if (saved) {
-                const docData = JSON.parse(saved);
-                document.getElementById('docTitleInput').value = docData.title || "Tài liệu - Word 365";
-                document.getElementById('editor').innerHTML = docData.content || "";
-                document.getElementById('headerZone').innerHTML = docData.header || "";
-                document.getElementById('footerZone').innerHTML = docData.footer || "";
+                // Save blank state to local storage
+                localStorage.removeItem('ms_word_clone_content');
+                localStorage.removeItem('ms_word_clone_watermark');
             }
-            saveAndStats();
-        }
 
-        function logout() {
-            currentUser = null;
-            document.getElementById('userName').innerText = "Khách";
-            document.getElementById('userAvatar').innerText = "K";
-            document.getElementById('userBigAvatar').innerText = "K";
-            document.getElementById('accFullName').innerText = "Tài khoản Khách";
-            document.getElementById('accEmail').innerText = "Chưa đăng nhập";
-            document.getElementById('accMenuBody').innerHTML = `
-                <div class="acc-item" onclick="openModal('loginModal')"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</div>
-                <div class="acc-item" onclick="openModal('registerModal')"><i class="fa-solid fa-user-plus"></i> Đăng ký tài khoản</div>
-            `;
+            if (selectedResetType === 'fullApp') {
+                // Clear all local storage related to application
+                localStorage.clear();
 
-            // Load Guest Doc
-            const saved = localStorage.getItem('word_365_user_guest');
-            if (saved) {
-                const docData = JSON.parse(saved);
-                document.getElementById('docTitleInput').value = docData.title || "Tài liệu 1 - Word 365";
-                document.getElementById('editor').innerHTML = docData.content || "";
+                // Reset Zoom
+                zoomLevel = 100;
+                applyZoom();
+
+                // Reset Theme Mode
+                document.documentElement.classList.remove('dark');
+
+                // Reset Ruler Visibility
+                const ruler = document.getElementById('rulerHeader');
+                if (ruler) ruler.classList.remove('hidden');
             }
-            saveAndStats();
+
+            closeResetModal();
+            updateDocumentStats();
+            
+            // Show toast feedback
+            showToast(selectedResetType === 'fullApp' ? 'Đã đặt lại toàn bộ ứng dụng và dữ liệu thành công!' : 'Đã đặt lại nội dung văn bản về mặc định!');
         }
 
-        function loadUserData() {
-            const saved = localStorage.getItem('word_365_user_guest');
-            if (saved) {
-                const docData = JSON.parse(saved);
-                document.getElementById('docTitleInput').value = docData.title || "Tài liệu 1 - Word 365";
-                document.getElementById('editor').innerHTML = docData.content || "";
-            }
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-lg text-xs z-50 flex items-center gap-2 animate-bounce';
+            toast.innerHTML = `<i class="fas fa-circle-check text-green-400"></i> <span>${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
-
-        function downloadTxt() {
-            const text = document.getElementById('editor').innerText;
-            const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = (document.getElementById('docTitleInput').value || 'tai-lieu') + '.txt';
-            a.click();
-        }
-
-        function downloadHtml() {
-            const content = document.getElementById('editor').innerHTML;
-            const blob = new Blob([content], { type: "text/html;charset=utf-8" });
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = (document.getElementById('docTitleInput').value || 'tai-lieu') + '.html';
-            a.click();
-        }
-
-        function exportToWord() {
-            const content = document.getElementById('editor').innerHTML;
-            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
-            const sourceHTML = header + content + "</body></html>";
-            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-            const a = document.createElement("a");
-            a.href = source;
-            a.download = (document.getElementById('docTitleInput').value || 'tai-lieu') + '.doc';
-            a.click();
-        }
-    </script>
-</body>
-</html>
+        
+        // ... existing code ...
