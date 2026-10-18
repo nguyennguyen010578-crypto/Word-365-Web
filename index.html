@@ -1,460 +1,709 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Microsoft Word 365 - Supercharge Edition</title>
+    <title>Microsoft Word 365 - Ultimate Enterprise Web Edition</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        word: {
+                            blue: '#185abd',
+                            darkblue: '#104a9e',
+                            header: '#2b579a',
+                            lightBg: '#f3f2f1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon Word W Emblem -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><path fill='%23185abd' d='M43 4H15c-1.1 0-2 .9-2 2v36c0 1.1.9 2 2 2h28c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z'/><path fill='%232b579a' d='M23.5 12h-8c-.8 0-1.5.7-1.5 1.5v21c0 .8.7 1.5 1.5 1.5h8c.8 0 1.5-.7 1.5-1.5v-21c0-.8-.7-1.5-1.5-1.5z'/><path fill='%23ffffff' d='M8 12l3.8 15.2L15.6 12h3.2l3.8 15.2L26.4 12h3.6l-5.4 20h-3.6L17 18.5 13 32H9.4L4 12h4z'/></svg>">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f3f2f1; height: 100vh; display: flex; flex-direction: column; color: #323130; overflow: hidden; }
-        
-        /* Title Bar & Quick Search */
-        .title-bar { background: #2b579a; color: white; padding: 5px 15px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
-        .title-bar-left { display: flex; align-items: center; gap: 12px; }
-        .title-bar input.doc-title { background: transparent; border: none; color: white; font-size: 14px; font-weight: bold; outline: none; padding: 2px 5px; border-radius: 2px; width: 180px; }
-        .title-bar input.doc-title:hover, .title-bar input.doc-title:focus { background: rgba(255,255,255,0.15); }
-
-        /* Search Tell Me Bar */
-        .search-tellme { position: relative; background: rgba(255,255,255,0.2); border-radius: 4px; display: flex; align-items: center; padding: 2px 8px; width: 220px; }
-        .search-tellme input { background: transparent; border: none; color: white; font-size: 12px; outline: none; width: 100%; }
-        .search-tellme input::placeholder { color: rgba(255,255,255,0.7); }
-
-        /* Account Hub */
-        .account-container { position: relative; display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 3px 8px; border-radius: 4px; }
-        .account-container:hover { background: rgba(255,255,255,0.15); }
-        .account-avatar { width: 28px; height: 28px; border-radius: 50%; background: #0078d4; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; border: 1px solid white; }
-
-        .account-dropdown { display: none; position: absolute; top: 40px; right: 0; background: #ffffff; color: #323130; width: 290px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); border-radius: 4px; z-index: 1000; border: 1px solid #e1dfdd; }
-        .account-dropdown.show { display: block; }
-        .acc-header { background: #f3f2f1; padding: 12px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #e1dfdd; }
-        .acc-big-avatar { width: 40px; height: 40px; border-radius: 50%; background: #185abd; color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
-        .acc-info .name { font-weight: bold; font-size: 13px; }
-        .acc-info .email { font-size: 11px; color: #605e5c; }
-        .acc-item { padding: 8px 15px; font-size: 13px; cursor: pointer; display: flex; gap: 8px; align-items: center; }
-        .acc-item:hover { background: #f3f2f1; }
-
-        /* Ribbon Tabs */
-        .ribbon-tabs { background: #f3f2f1; display: flex; border-bottom: 1px solid #e1dfdd; padding: 0 10px; }
-        .tab-btn { padding: 8px 16px; font-size: 13px; cursor: pointer; border: none; background: transparent; color: #605e5c; font-weight: 500; }
-        .tab-btn.active { background: #ffffff; border-bottom: 2px solid #2b579a; color: #2b579a; font-weight: bold; }
-
-        /* Ribbon Toolbar */
-        .ribbon-toolbar { background: #ffffff; border-bottom: 1px solid #e1dfdd; padding: 8px 15px; display: flex; gap: 12px; align-items: center; height: 95px; overflow-x: auto; }
-        .ribbon-panel { display: none; gap: 12px; align-items: center; height: 100%; }
-        .ribbon-panel.active { display: flex; }
-        .ribbon-group { display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding-right: 12px; border-right: 1px solid #e1dfdd; }
-        .ribbon-group:last-child { border-right: none; }
-        .group-buttons { display: flex; align-items: center; gap: 4px; }
-        .group-label { font-size: 11px; color: #605e5c; text-align: center; margin-top: 4px; }
-
-        button, select {
-            background: #ffffff; border: 1px solid #d2d0ce; padding: 4px 8px; border-radius: 2px; cursor: pointer; font-size: 12px; height: 28px; display: flex; align-items: center; justify-content: center; color: #323130;
-        }
-        button:hover, select:hover { background: #f3f2f1; border-color: #b3b0ad; }
-        .tool-btn { min-width: 28px; font-weight: bold; }
-        input[type="color"] { border: 1px solid #d2d0ce; width: 28px; height: 28px; padding: 0; background: none; cursor: pointer; border-radius: 2px; }
-
-        /* Ruler Bar */
-        .ruler-container { background: #e6e6e6; display: flex; justify-content: center; border-bottom: 1px solid #d2d0ce; }
-        .ruler { width: 816px; height: 18px; background: #ffffff; border-left: 1px solid #b3b0ad; border-right: 1px solid #b3b0ad; position: relative; font-size: 9px; color: #605e5c; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 5px; }
-
-        /* Document Viewport */
-        .viewport { flex: 1; overflow-y: auto; padding: 25px 40px; display: flex; justify-content: center; background: #e6e6e6; transition: background 0.3s; }
         .document-page {
-            background: #ffffff; width: 816px; min-height: 1056px; padding: 96px; 
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15); outline: none; line-height: 1.6; font-size: 15px; color: #323130; position: relative;
+            width: 816px;
+            min-height: 1056px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, width 0.2s ease, padding 0.2s ease, background-color 0.2s ease;
+            transform-origin: top center;
         }
-        .document-page.dark-mode { background: #1e1e1e; color: #e0e0e0; }
-
-        /* Watermark */
-        .watermark { position: absolute; top: 40%; left: 15%; transform: rotate(-45deg); font-size: 60px; color: rgba(0,0,0,0.06); font-weight: bold; pointer-events: none; user-select: none; }
-
-        /* Status Bar */
-        .status-bar { background: #f3f2f1; border-top: 1px solid #e1dfdd; padding: 4px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #605e5c; }
-        .status-right { display: flex; gap: 15px; align-items: center; }
-        .cloud-status { color: #107c41; font-weight: 500; }
-
-        /* Modals */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-card { background: white; width: 380px; padding: 20px; border-radius: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
-        .modal-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; color: #2b579a; display: flex; justify-content: space-between; align-items: center; }
-        .modal-close { cursor: pointer; border: none; background: none; font-size: 16px; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; margin-bottom: 4px; color: #605e5c; }
-        .form-group input { width: 100%; padding: 6px 8px; border: 1px solid #d2d0ce; border-radius: 2px; font-size: 13px; outline: none; }
-        .btn-primary { width: 100%; background: #185abd; color: white; border: none; padding: 8px; border-radius: 2px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        .btn-primary:hover { background: #104a9e; }
-        .stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f3f2f1; font-size: 13px; }
+        .document-page[contenteditable="true"]:focus { outline: none; }
+        .gridlines-bg {
+            background-size: 20px 20px;
+            background-image: linear-gradient(to right, rgba(203, 213, 225, 0.4) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(203, 213, 225, 0.4) 1px, transparent 1px);
+        }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 dark:bg-gray-900 text-slate-800 dark:text-gray-100 h-screen flex flex-col overflow-hidden font-sans select-none">
 
-    <!-- Title Bar -->
-    <div class="title-bar">
-        <div class="title-bar-left">
-            <span style="font-weight: bold; background: #185abd; padding: 2px 6px; border-radius: 2px;">W</span>
-            <input type="text" class="doc-title" value="Báo cáo Mới - Word">
-            
-            <!-- Tell Me Search Bar -->
-            <div class="search-tellme">
-                <span>🔍</span>
-                <input type="text" id="tellMeInput" placeholder="Cho tôi biết bạn muốn làm gì..." onkeypress="handleTellMe(event)">
+    <!-- TOP TITLE BAR -->
+    <header class="bg-word-header text-white px-3 py-1.5 flex items-center justify-between text-xs z-30 shadow-sm">
+        <div class="flex items-center gap-2">
+            <button onclick="openFileMenu()" class="w-7 h-7 bg-blue-700 hover:bg-blue-800 rounded flex items-center justify-center font-bold text-white text-base shadow border border-blue-400/30 transition" title="Menu Tệp (File)">
+                W
+            </button>
+            <div class="flex items-center gap-0.5">
+                <button onclick="saveDocumentState()" class="p-1.5 hover:bg-blue-800 rounded text-xs flex items-center gap-1 transition" title="Lưu thủ công (Ctrl+S)">
+                    <i class="fas fa-floppy-disk"></i>
+                </button>
+                <button onclick="document.execCommand('undo')" class="p-1.5 hover:bg-blue-800 rounded text-xs transition" title="Hoàn tác (Ctrl+Z)">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button onclick="document.execCommand('redo')" class="p-1.5 hover:bg-blue-800 rounded text-xs transition" title="Làm lại (Ctrl+Y)">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <button onclick="openResetModal()" class="p-1.5 hover:bg-red-700/80 rounded text-xs transition flex items-center gap-1 text-white" title="Đặt lại tài liệu">
+                    <i class="fas fa-rotate-left"></i>
+                    <span class="hidden sm:inline font-medium">Reset</span>
+                </button>
             </div>
         </div>
 
-        <!-- Account Hub -->
-        <div class="account-container" onclick="toggleAccountMenu()">
-            <div class="account-avatar" id="userAvatar">K</div>
-            <div class="account-name" id="userName">Khách</div>
-            <span>▼</span>
+        <div class="flex-1 max-w-xl mx-4 flex items-center gap-2">
+            <span id="docTitleDisplay" onclick="renameDocument()" class="font-semibold text-sm truncate cursor-pointer hover:underline">Văn bản 1 - Word</span>
+            <div class="relative flex-1 hidden md:block">
+                <input type="text" id="tellMeInput" placeholder="Cho tôi biết bạn muốn làm gì... (Tell Me)" onkeypress="handleTellMeSearch(event)" class="w-full bg-white/20 text-white placeholder-white/70 text-xs rounded px-2.5 py-1 outline-none border border-transparent focus:border-white/40 transition">
+                <i class="fas fa-magnifying-glass absolute right-2.5 top-1.5 text-white/70 text-xs pointer-events-none"></i>
+            </div>
+        </div>
 
-            <div class="account-dropdown" id="accountDropdown" onclick="event.stopPropagation()">
-                <div class="acc-header">
-                    <div class="acc-big-avatar" id="userBigAvatar">K</div>
-                    <div class="acc-info">
-                        <div class="name" id="accFullName">Tài khoản Khách</div>
-                        <div class="email" id="accEmail">Chưa đăng nhập</div>
+        <div class="relative">
+            <button onclick="toggleAccountMenu()" class="flex items-center gap-2 hover:bg-blue-800/80 p-1 rounded transition">
+                <div id="userAvatar" class="w-6 h-6 rounded-full bg-blue-600 border border-white text-white font-bold flex items-center justify-center text-xs">K</div>
+                <span id="userName" class="text-xs font-medium hidden sm:inline">Khách</span>
+                <i class="fas fa-chevron-down text-[10px]"></i>
+            </button>
+            <div id="accountDropdown" class="hidden absolute right-0 top-8 w-64 bg-white dark:bg-gray-800 text-slate-800 dark:text-gray-100 rounded-lg shadow-xl border border-slate-200 dark:border-gray-700 z-50 overflow-hidden">
+                <div class="p-3 bg-slate-50 dark:bg-gray-700/50 border-b border-slate-200 dark:border-gray-700 flex items-center gap-3">
+                    <div id="userBigAvatar" class="w-10 h-10 rounded-full bg-word-blue text-white font-bold flex items-center justify-center text-base">K</div>
+                    <div class="overflow-hidden">
+                        <div id="accFullName" class="font-bold text-xs truncate">Tài khoản Khách</div>
+                        <div id="accEmail" class="text-[10px] text-slate-500 dark:text-gray-400 truncate">Chưa đăng nhập</div>
                     </div>
                 </div>
-                <div class="acc-body" id="accMenuBody">
-                    <div class="acc-item" onclick="openModal('loginModal')">🔑 Đăng nhập</div>
-                    <div class="acc-item" onclick="openModal('registerModal')">📝 Đăng ký tài khoản</div>
+                <div class="p-1 space-y-0.5 text-xs">
+                    <button onclick="openAuthModal('login')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-gray-700 rounded flex items-center gap-2"><i class="fas fa-key text-blue-600"></i> Đăng nhập</button>
+                    <button onclick="openAuthModal('register')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-gray-700 rounded flex items-center gap-2"><i class="fas fa-user-plus text-green-600"></i> Đăng ký tài khoản</button>
+                    <button onclick="logout()" class="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded flex items-center gap-2 border-t border-slate-100 dark:border-gray-700"><i class="fas fa-right-from-bracket"></i> Đăng xuất</button>
                 </div>
             </div>
+        </div>
+    </header>
+
+    <!-- RIBBON TAB NAVIGATION BAR -->
+    <nav class="bg-slate-100 dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 px-3 flex items-center gap-1 text-xs z-20 overflow-x-auto">
+        <button onclick="openFileMenu()" class="px-3 py-2 text-word-blue font-bold hover:bg-blue-100 dark:hover:bg-gray-700 transition">Tệp</button>
+        <button onclick="switchTab('home')" id="tab-btn-home" class="ribbon-tab-btn active px-3 py-2 font-semibold border-b-2 border-word-blue text-word-blue">Trang chủ</button>
+        <button onclick="switchTab('insert')" id="tab-btn-insert" class="ribbon-tab-btn px-3 py-2 font-semibold border-b-2 border-transparent hover:border-slate-300 dark:hover:border-gray-600">Chèn</button>
+        <button onclick="switchTab('draw')" id="tab-btn-draw" class="ribbon-tab-btn px-3 py-2 font-semibold border-b-2 border-transparent hover:border-slate-300 dark:hover:border-gray-600">Vẽ (Draw)</button>
+        <button onclick="switchTab('layout')" id="tab-btn-layout" class="ribbon-tab-btn px-3 py-2 font-semibold border-b-2 border-transparent hover:border-slate-300 dark:hover:border-gray-600">Bố trí</button>
+        <button onclick="switchTab('references')" id="tab-btn-references" class="ribbon-tab-btn px-3 py-2 font-semibold border-b-2 border-transparent hover:border-slate-300 dark:hover:border-gray-600">Tham chiếu</button>
+        <button onclick="switchTab('review')" id="tab-btn-review" class="ribbon-tab-btn px-3 py-2 font-semibold border-b-2 border-transparent hover:border-slate-300 dark:hover:border-gray-600">Xem lại</button>
+        <button onclick="switchTab('view')" id="tab-btn-view" class="ribbon-tab-btn px-3 py-2 font-semibold border-b-2 border-transparent hover:border-slate-300 dark:hover:border-gray-600">Xem</button>
+    </nav>
+
+    <!-- RIBBON TOOLBAR PANEL -->
+    <div class="bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 px-3 py-1.5 z-20 shadow-sm min-h-[50px]">
+        
+        <!-- TRANG CHỦ (HOME TAB) -->
+        <div id="home-tab" class="ribbon-tab-content flex items-center gap-3 overflow-x-auto">
+            <div class="flex items-center gap-1 pr-3 border-r border-slate-200 dark:border-gray-700">
+                <select onchange="executeCommand('fontName', this.value)" class="text-xs border rounded p-1 dark:bg-gray-700 dark:border-gray-600">
+                    <option value="Arial">Arial</option>
+                    <option value="Calibri" selected>Calibri</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Segoe UI">Segoe UI</option>
+                </select>
+                <select onchange="executeCommand('fontSize', this.value)" class="text-xs border rounded p-1 dark:bg-gray-700 dark:border-gray-600">
+                    <option value="1">8 pt</option>
+                    <option value="2">10 pt</option>
+                    <option value="3" selected>12 pt</option>
+                    <option value="4">14 pt</option>
+                    <option value="5">18 pt</option>
+                    <option value="6">24 pt</option>
+                    <option value="7">36 pt</option>
+                </select>
+                <button onclick="executeCommand('bold')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 font-bold text-xs" title="In đậm">B</button>
+                <button onclick="executeCommand('italic')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 italic text-xs" title="In nghiêng">I</button>
+                <button onclick="executeCommand('underline')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 underline text-xs" title="Gạch chân">U</button>
+                <button onclick="executeCommand('strikeThrough')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 line-through text-xs" title="Gạch ngang">S</button>
+                <button onclick="changeCase('upper')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs font-bold" title="IN HOA">AA</button>
+                <button onclick="changeCase('lower')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="chữ thường">aa</button>
+                <input type="color" onchange="executeCommand('foreColor', this.value)" class="w-6 h-6 p-0 border-0 cursor-pointer rounded" title="Màu chữ">
+                <input type="color" onchange="executeCommand('hiliteColor', this.value)" value="#ffff00" class="w-6 h-6 p-0 border-0 cursor-pointer rounded" title="Màu Highlight">
+            </div>
+
+            <div class="flex items-center gap-1 pr-3 border-r border-slate-200 dark:border-gray-700">
+                <button onclick="executeCommand('justifyLeft')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn trái"><i class="fas fa-align-left"></i></button>
+                <button onclick="executeCommand('justifyCenter')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn giữa"><i class="fas fa-align-center"></i></button>
+                <button onclick="executeCommand('justifyRight')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn phải"><i class="fas fa-align-right"></i></button>
+                <button onclick="executeCommand('justifyFull')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn đều"><i class="fas fa-align-justify"></i></button>
+                <button onclick="executeCommand('insertUnorderedList')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Danh sách đầu dòng"><i class="fas fa-list-ul"></i></button>
+                <button onclick="executeCommand('insertOrderedList')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Danh sách số"><i class="fas fa-list-ol"></i></button>
+            </div>
+
+            <div class="flex items-center gap-1">
+                <button onclick="openFindReplaceModal()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1"><i class="fas fa-magnifying-glass text-blue-600"></i> Tìm & Thay thế</button>
+                <button onclick="openResetModal()" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded border border-red-200 dark:border-red-800 text-xs flex items-center gap-1"><i class="fas fa-rotate-left"></i> Reset Word</button>
+            </div>
+        </div>
+
+        <!-- CHÈN (INSERT TAB) -->
+        <div id="insert-tab" class="ribbon-tab-content hidden flex items-center gap-2 overflow-x-auto">
+            <button onclick="insertCoverPage()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-file-lines text-amber-600"></i> Trang bìa mẫu</button>
+            <button onclick="insertTable()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-table text-blue-600"></i> Bảng biểu</button>
+            <button onclick="insertImage()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-image text-green-600"></i> Hình ảnh</button>
+            <button onclick="insertLink()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-link text-purple-600"></i> Liên kết URL</button>
+            <button onclick="insertDateTime()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-clock text-slate-600"></i> Ngày giờ</button>
+            <button onclick="executeCommand('insertHorizontalRule')" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-minus text-slate-600"></i> Đường kẻ phân cách</button>
+        </div>
+
+        <!-- VẼ (DRAW TAB) -->
+        <div id="draw-tab" class="ribbon-tab-content hidden flex items-center gap-3 overflow-x-auto">
+            <button id="drawModeBtn" onclick="toggleDrawMode()" class="px-3 py-1.5 border rounded bg-slate-100 dark:bg-gray-700 text-xs font-semibold flex items-center gap-1.5"><i class="fas fa-pen-nib text-blue-600"></i> <span id="drawModeText">Bật Chế độ Vẽ</span></button>
+            <div class="flex items-center gap-2 border-l pl-3 dark:border-gray-700">
+                <span class="text-xs">Màu bút:</span>
+                <input type="color" id="penColor" value="#000000" onchange="updatePenSettings()" class="w-6 h-6 p-0 border-0 cursor-pointer rounded">
+                <span class="text-xs ml-2">Cỡ nét:</span>
+                <input type="range" id="penSize" min="1" max="15" value="3" onchange="updatePenSettings()" class="w-20">
+                <button onclick="clearDrawCanvas()" class="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 rounded text-xs ml-2"><i class="fas fa-eraser"></i> Xóa nét vẽ</button>
+            </div>
+        </div>
+
+        <!-- BỐ TRÍ (LAYOUT TAB) -->
+        <div id="layout-tab" class="ribbon-tab-content hidden flex items-center gap-3 overflow-x-auto">
+            <div class="flex items-center gap-2 text-xs">
+                <span>Hướng trang:</span>
+                <select onchange="changeOrientation(this.value)" class="border rounded p-1 dark:bg-gray-700 dark:border-gray-600">
+                    <option value="portrait">Khổ Dọc (Portrait)</option>
+                    <option value="landscape">Khổ Ngang (Landscape)</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2 text-xs border-l pl-3 dark:border-gray-700">
+                <span>Căn lề:</span>
+                <select onchange="changeMargins(this.value)" class="border rounded p-1 dark:bg-gray-700 dark:border-gray-600">
+                    <option value="normal">Lề Chuẩn (Normal)</option>
+                    <option value="narrow">Lề Hẹp (Narrow)</option>
+                    <option value="wide">Lề Rộng (Wide)</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2 text-xs border-l pl-3 dark:border-gray-700">
+                <span>Màu trang:</span>
+                <input type="color" id="pageBgColor" value="#ffffff" onchange="changePageColor(this.value)" class="w-6 h-6 p-0 border-0 cursor-pointer rounded" title="Đổi màu nền giấy">
+            </div>
+            <button onclick="openWatermarkModal()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-stamp text-blue-600"></i> Watermark Chìm</button>
+        </div>
+
+        <!-- THAM CHIẾU (REFERENCES TAB) -->
+        <div id="references-tab" class="ribbon-tab-content hidden flex items-center gap-2 overflow-x-auto">
+            <button onclick="generateTableOfContents()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-list-ol text-blue-600"></i> Tự động tạo Mục lục</button>
+            <button onclick="insertFootnote()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-asterisk text-amber-600"></i> Chèn Chú thích (Footnote)</button>
+        </div>
+
+        <!-- XEM LẠI (REVIEW TAB) -->
+        <div id="review-tab" class="ribbon-tab-content hidden flex items-center gap-2 overflow-x-auto">
+            <button onclick="openWordCountModal()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-calculator text-blue-600"></i> Thống kê từ chi tiết</button>
+            <button onclick="addComment()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-comment-medical text-green-600"></i> Thêm Bình luận (Comment)</button>
+        </div>
+
+        <!-- XEM (VIEW TAB) -->
+        <div id="view-tab" class="ribbon-tab-content hidden flex items-center gap-2 overflow-x-auto">
+            <button onclick="toggleDarkMode()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-moon text-amber-500"></i> Đổi Giao diện Tối / Sáng</button>
+            <button onclick="toggleRuler()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-ruler text-slate-600"></i> Bật / Tắt Thước kẻ</button>
+            <button onclick="toggleGridlines()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-border-all text-purple-600"></i> Bật / Tắt Lưới trang</button>
+            <button onclick="window.print()" class="px-2.5 py-1.5 border rounded hover:bg-slate-100 dark:hover:bg-gray-700 text-xs flex items-center gap-1.5"><i class="fas fa-print text-blue-600"></i> In văn bản (Print)</button>
         </div>
     </div>
 
-    <!-- Ribbon Tabs -->
-    <div class="ribbon-tabs">
-        <button class="tab-btn active" onclick="switchTab('home', this)">Trang chủ</button>
-        <button class="tab-btn" onclick="switchTab('insert', this)">Chèn</button>
-        <button class="tab-btn" onclick="switchTab('layout', this)">Bố trí</button>
-        <button class="tab-btn" onclick="switchTab('view', this)">Xem</button>
-    </div>
-
-    <!-- Ribbon Toolbar -->
-    <div class="ribbon-toolbar">
-        <!-- HOME PANEL -->
-        <div class="ribbon-panel active" id="panel-home">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <select onchange="execCmd('fontName', this.value)" style="width: 120px;">
-                        <option value="Calibri" selected>Calibri</option>
-                        <option value="Arial">Arial</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Segoe UI">Segoe UI</option>
-                    </select>
-                    <select onchange="execCmd('fontSize', this.value)">
-                        <option value="3">11 pt</option>
-                        <option value="1">8 pt</option>
-                        <option value="4">14 pt</option>
-                        <option value="6">24 pt</option>
-                    </select>
-                </div>
-                <div class="group-buttons">
-                    <button class="tool-btn" onclick="execCmd('bold')">B</button>
-                    <button class="tool-btn" onclick="execCmd('italic')"><i>I</i></button>
-                    <button class="tool-btn" onclick="execCmd('underline')"><u>U</u></button>
-                    <button class="tool-btn" onclick="execCmd('strikeThrough')"><s>S</s></button>
-                    <button onclick="changeCase('upper')">AA</button>
-                    <button onclick="changeCase('lower')">aa</button>
-                    <input type="color" onchange="execCmd('foreColor', this.value)" title="Màu chữ">
-                    <input type="color" onchange="execCmd('hiliteColor', this.value)" title="Highlight" value="#ffff00">
-                </div>
-                <div class="group-label">Phông chữ & Kiểu chữ</div>
-            </div>
-
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="execCmd('justifyLeft')">⬅ Trái</button>
-                    <button onclick="execCmd('justifyCenter')">↔ Giữa</button>
-                    <button onclick="execCmd('justifyRight')">➔ Phải</button>
-                    <button onclick="execCmd('justifyFull')">☰ Đều</button>
-                </div>
-                <div class="group-buttons">
-                    <button onclick="execCmd('insertUnorderedList')">• Danh sách</button>
-                    <button onclick="execCmd('insertOrderedList')">1. Danh sách</button>
-                    <button onclick="changeLineSpacing(1.15)">↕ Dãn dòng</button>
-                </div>
-                <div class="group-label">Đoạn văn</div>
-            </div>
-
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="openModal('findReplaceModal')">🔍 Tìm & Thay thế</button>
-                    <button onclick="openModal('statsModal')">📊 Thống kê từ</button>
-                </div>
-                <div class="group-buttons">
-                    <button onclick="exportToWord()" style="background:#2b579a; color:white; font-weight:bold;">💾 Tải file (.doc)</button>
-                </div>
-                <div class="group-label">Hệ thống</div>
-            </div>
-        </div>
-
-        <!-- INSERT PANEL -->
-        <div class="ribbon-panel" id="panel-insert">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="insertCoverPage()">📄 Trang bìa mẫu</button>
-                    <button onclick="insertTable()">📊 Bảng</button>
-                    <button onclick="insertImage()">🖼️ Hình ảnh</button>
-                </div>
-                <div class="group-buttons">
-                    <button onclick="insertLink()">🔗 Liên kết</button>
-                    <button onclick="insertDateTime()">🕒 Ngày giờ</button>
-                    <button onclick="execCmd('insertHorizontalRule')">➖ Đường kẻ</button>
-                </div>
-                <div class="group-label">Chèn trang & Mẫu</div>
-            </div>
-        </div>
-
-        <!-- LAYOUT PANEL -->
-        <div class="ribbon-panel" id="panel-layout">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <select onchange="changeOrientation(this.value)">
-                        <option value="portrait">Hướng dọc</option>
-                        <option value="landscape">Hướng ngang</option>
-                    </select>
-                    <select onchange="changePaperSize(this.value)">
-                        <option value="A4">Khổ A4</option>
-                        <option value="Letter">Khổ Letter</option>
-                        <option value="A3">Khổ A3</option>
-                    </select>
-                </div>
-                <div class="group-buttons">
-                    <select onchange="changeMargins(this.value)">
-                        <option value="normal">Căn lề Chuẩn</option>
-                        <option value="narrow">Căn lề Hẹp</option>
-                        <option value="wide">Căn lề Rộng</option>
-                    </select>
-                    <button onclick="toggleWatermark()">💧 Watermark</button>
-                </div>
-                <div class="group-label">Định dạng trang</div>
-            </div>
-        </div>
-
-        <!-- VIEW PANEL -->
-        <div class="ribbon-panel" id="panel-view">
-            <div class="ribbon-group">
-                <div class="group-buttons">
-                    <button onclick="toggleDarkMode()">🌙 Chế độ Tối / Sáng</button>
-                    <button onclick="window.print()">🖨️ In ấn</button>
-                </div>
-                <div class="group-buttons">
-                    <label style="font-size:12px;">Zoom: </label>
-                    <input type="range" min="50" max="150" value="100" oninput="changeZoom(this.value)" style="width:90px;">
-                    <span id="zoomVal">100%</span>
-                </div>
-                <div class="group-label">Chế độ xem</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Thước kẻ -->
-    <div class="ruler-container">
-        <div class="ruler">
+    <!-- THƯỚC KẺ (RULER BAR) -->
+    <div id="rulerHeader" class="bg-slate-200 dark:bg-gray-800 border-b border-slate-300 dark:border-gray-700 flex justify-center py-0.5">
+        <div class="w-[816px] h-4 bg-white dark:bg-gray-700 border-x border-slate-300 dark:border-gray-600 flex justify-between items-end px-2 text-[9px] text-slate-500 dark:text-gray-400">
             <span>| 0</span><span>| 1</span><span>| 2</span><span>| 3</span><span>| 4</span>
             <span>| 5</span><span>| 6</span><span>| 7</span><span>| 8</span><span>| 9</span>
         </div>
     </div>
 
-    <!-- Viewport -->
-    <div class="viewport">
-        <div class="document-page" contenteditable="true" id="editor" oninput="saveAndStats()" spellcheck="false">
-            <div class="watermark" id="watermark" style="display:none;">BẢN NHÁP</div>
-        </div>
-    </div>
+    <!-- MAIN DOCUMENT EDITOR VIEWPORT -->
+    <main class="flex-1 overflow-y-auto p-8 flex justify-center bg-slate-200 dark:bg-gray-900 transition-colors relative">
+        <div class="relative">
+            <!-- Canvas Overlay for Freehand Drawing -->
+            <canvas id="drawCanvas" width="816" height="1056" class="absolute inset-0 z-20 pointer-events-none"></canvas>
 
-    <!-- Status Bar -->
-    <div class="status-bar">
-        <div style="display:flex; gap:15px; align-items:center;">
-            <span id="wordCount">Trang 1 / 1  |  0 từ  |  0 ký tự</span>
-            <span class="cloud-status" id="cloudStatus">☁️ Đã lưu trên Cloud</span>
+            <!-- Watermark Display -->
+            <div id="watermarkDisplay" class="absolute inset-0 pointer-events-none flex items-center justify-center text-slate-300/20 dark:text-white/5 font-extrabold text-6xl rotate-[-45deg] select-none z-0"></div>
+
+            <!-- Editable Paper Container -->
+            <div id="editor" contenteditable="true" oninput="updateDocumentStats()" class="document-page relative z-10 bg-white dark:bg-gray-800 text-slate-900 dark:text-gray-100 p-24 leading-relaxed font-sans text-base" spellcheck="false">
+                <p>Nhập nội dung văn bản chuyên nghiệp của bạn tại đây...</p>
+            </div>
         </div>
-        <div class="status-right">
+
+        <!-- Sidebar Comments Container -->
+        <div id="commentSidebar" class="hidden w-64 ml-4 bg-white dark:bg-gray-800 border border-slate-300 dark:border-gray-700 rounded-lg p-3 shadow-lg h-fit text-xs space-y-3 z-30">
+            <div class="font-bold border-b pb-2 dark:border-gray-700 flex justify-between items-center">
+                <span>📝 Bình luận văn bản</span>
+                <button onclick="toggleCommentSidebar()" class="text-slate-400">✕</button>
+            </div>
+            <div id="commentList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+        </div>
+    </main>
+
+    <!-- STATUS BAR -->
+    <footer class="bg-slate-200 dark:bg-gray-800 border-t border-slate-300 dark:border-gray-700 px-4 py-1 text-xs text-slate-600 dark:text-gray-400 flex justify-between items-center z-20">
+        <div class="flex items-center gap-4">
+            <span id="wordCountStats">Trang 1 / 1  |  0 từ  |  0 ký tự</span>
+            <span class="text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                <i class="fas fa-cloud"></i> <span id="cloudStatus">Đã lưu tự động</span>
+            </span>
+        </div>
+        <div class="flex items-center gap-4">
             <span>Tiếng Việt (Việt Nam)</span>
-            <span id="zoomStatus">100%</span>
+            <div class="flex items-center gap-2">
+                <button onclick="adjustZoom(-10)" class="p-0.5 hover:bg-slate-300 dark:hover:bg-gray-700 rounded"><i class="fas fa-minus text-[10px]"></i></button>
+                <span id="zoomDisplay">100%</span>
+                <button onclick="adjustZoom(10)" class="p-0.5 hover:bg-slate-300 dark:hover:bg-gray-700 rounded"><i class="fas fa-plus text-[10px]"></i></button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- FILE / BACKSTAGE MENU OVERLAY -->
+    <div id="fileMenuModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex">
+        <div class="w-64 bg-blue-900 text-white flex flex-col p-4 shadow-2xl">
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <span class="font-bold text-2xl bg-blue-700 px-2 py-0.5 rounded border border-blue-400">W</span>
+                <span class="font-semibold text-lg">Microsoft Word</span>
+            </div>
+            <nav class="flex-1 space-y-1">
+                <button onclick="newDocument(); closeFileMenu();" class="w-full text-left px-3 py-2 rounded hover:bg-blue-800 flex items-center gap-3 text-sm font-medium"><i class="fas fa-file-circle-plus"></i> Tạo văn bản mới</button>
+                <button onclick="exportWordDocument(); closeFileMenu();" class="w-full text-left px-3 py-2 rounded hover:bg-blue-800 flex items-center gap-3 text-sm font-medium"><i class="fas fa-file-word"></i> Xuất ra file Docx/HTML</button>
+                <button onclick="openWatermarkModal(); closeFileMenu();" class="w-full text-left px-3 py-2 rounded hover:bg-blue-800 flex items-center gap-3 text-sm font-medium"><i class="fas fa-stamp"></i> Đặt Watermark chìm</button>
+                <button onclick="openResetModal(); closeFileMenu();" class="w-full text-left px-3 py-2 rounded hover:bg-red-800/80 bg-red-900/40 text-red-200 flex items-center gap-3 text-sm font-medium mt-4"><i class="fas fa-rotate-left text-red-400"></i> Đặt lại / Reset Word</button>
+            </nav>
+            <button onclick="closeFileMenu()" class="mt-auto px-3 py-2 border border-blue-700 hover:bg-blue-800 rounded text-xs text-slate-200 flex items-center justify-center gap-2"><i class="fas fa-arrow-left"></i> Quay lại làm việc</button>
+        </div>
+        <div class="flex-1" onclick="closeFileMenu()"></div>
+    </div>
+
+    <!-- RESET CONFIRMATION MODAL -->
+    <div id="resetModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-gray-700">
+            <div class="p-5 border-b border-slate-100 dark:border-gray-700 flex items-center justify-between bg-slate-50 dark:bg-gray-800/50">
+                <div class="flex items-center gap-3 text-red-600 dark:text-red-400">
+                    <i class="fas fa-triangle-exclamation text-xl"></i>
+                    <h3 class="font-semibold text-base text-gray-900 dark:text-white">Đặt lại Văn bản & Tùy chọn</h3>
+                </div>
+                <button onclick="closeResetModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">✕</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-gray-600 dark:text-gray-300">Bạn có chắc chắn muốn đặt lại / xóa toàn bộ nội dung về mặc định không?</p>
+                <div class="space-y-3 pt-2">
+                    <div class="p-3 border rounded-lg dark:border-gray-700 cursor-pointer flex items-start gap-3" onclick="confirmReset('docOnly')">
+                        <input type="radio" name="resetOption" id="resetDocOnly" checked class="mt-1">
+                        <label for="resetDocOnly" class="text-xs">
+                            <span class="font-semibold block text-gray-800 dark:text-gray-200">Chỉ đặt lại nội dung văn bản</span>
+                            <span class="text-gray-500">Xóa nội dung trang trắng, nét vẽ canvas và watermark.</span>
+                        </label>
+                    </div>
+                    <div class="p-3 border rounded-lg dark:border-gray-700 cursor-pointer flex items-start gap-3" onclick="confirmReset('fullApp')">
+                        <input type="radio" name="resetOption" id="resetFullApp" class="mt-1">
+                        <label for="resetFullApp" class="text-xs">
+                            <span class="font-semibold block text-red-600 dark:text-red-400">Đặt lại toàn bộ ứng dụng & LocalStorage</span>
+                            <span class="text-gray-500">Khôi phục cài đặt gốc, zoom, giao diện sáng/tối và bộ nhớ lưu tạm.</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-gray-800/80 border-t border-slate-100 dark:border-gray-700 flex justify-end gap-2">
+                <button onclick="closeResetModal()" class="px-4 py-2 border rounded-lg text-xs font-medium">Hủy bỏ</button>
+                <button onclick="executeReset()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-medium"><i class="fas fa-rotate-left"></i> Xác nhận Đặt lại</button>
+            </div>
         </div>
     </div>
 
-    <!-- Modals -->
-    <div class="modal-overlay" id="findReplaceModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span>Tìm kiếm & Thay thế</span>
-                <button class="modal-close" onclick="closeModal('findReplaceModal')">✕</button>
+    <!-- FIND & REPLACE MODAL -->
+    <div id="findReplaceModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-sm w-full p-5 space-y-4 border dark:border-gray-700">
+            <div class="flex justify-between items-center font-bold text-sm border-b pb-2 dark:border-gray-700">
+                <span>🔍 Tìm kiếm & Thay thế</span>
+                <button onclick="closeFindReplaceModal()">✕</button>
             </div>
-            <div class="form-group">
-                <label>Từ cần tìm:</label>
-                <input type="text" id="findInput" placeholder="Nhập từ cần tìm...">
+            <input type="text" id="findInput" placeholder="Từ cần tìm..." class="w-full text-xs border rounded p-2 dark:bg-gray-700 dark:border-gray-600 outline-none">
+            <input type="text" id="replaceInput" placeholder="Từ thay thế..." class="w-full text-xs border rounded p-2 dark:bg-gray-700 dark:border-gray-600 outline-none">
+            <div class="flex gap-2">
+                <button onclick="closeFindReplaceModal()" class="flex-1 py-2 border rounded text-xs">Hủy</button>
+                <button onclick="executeReplace()" class="flex-1 py-2 bg-word-blue text-white rounded text-xs font-bold">Thay thế tất cả</button>
             </div>
-            <div class="form-group">
-                <label>Thay thế bằng:</label>
-                <input type="text" id="replaceInput" placeholder="Nhập từ thay thế...">
-            </div>
-            <button class="btn-primary" onclick="performReplace()">Thay thế tất cả</button>
         </div>
     </div>
 
-    <div class="modal-overlay" id="statsModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span>Thống kê chi tiết</span>
-                <button class="modal-close" onclick="closeModal('statsModal')">✕</button>
+    <!-- WATERMARK MODAL -->
+    <div id="watermarkModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-sm w-full p-5 space-y-4 border dark:border-gray-700">
+            <div class="flex justify-between items-center font-bold text-sm border-b pb-2 dark:border-gray-700">
+                <span>💧 Đặt Watermark Chìm</span>
+                <button onclick="closeWatermarkModal()">✕</button>
             </div>
-            <div class="stat-row"><span>Tổng số từ:</span> <strong id="statWords">0</strong></div>
-            <div class="stat-row"><span>Ký tự (có khoảng trắng):</span> <strong id="statCharsWith">0</strong></div>
-            <div class="stat-row"><span>Ký tự (không khoảng trắng):</span> <strong id="statCharsWithout">0</strong></div>
-            <div class="stat-row"><span>Số đoạn văn:</span> <strong id="statParagraphs">0</strong></div>
-            <button class="btn-primary" onclick="closeModal('statsModal')" style="margin-top: 15px;">Đóng</button>
+            <input type="text" id="watermarkInput" placeholder="Ví dụ: BẢN NHÁP / BẢO MẬT" class="w-full text-xs border rounded p-2 dark:bg-gray-700 dark:border-gray-600 outline-none">
+            <div class="flex gap-2">
+                <button onclick="setWatermark(''); closeWatermarkModal();" class="flex-1 py-2 border text-red-600 rounded text-xs">Xóa Watermark</button>
+                <button onclick="applyWatermark()" class="flex-1 py-2 bg-word-blue text-white rounded text-xs font-bold">Áp dụng</button>
+            </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="loginModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span>Đăng nhập</span>
-                <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+    <!-- AUTHENTICATION MODAL -->
+    <div id="authModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4">
+            <h3 id="authModalTitle" class="text-base font-bold text-word-blue">Đăng nhập tài khoản</h3>
+            <div class="space-y-3">
+                <input type="text" id="authEmail" placeholder="Email / Tên tài khoản" class="w-full text-xs border rounded p-2 dark:bg-gray-700 dark:border-gray-600 outline-none">
+                <input type="password" id="authPass" placeholder="Mật khẩu" class="w-full text-xs border rounded p-2 dark:bg-gray-700 dark:border-gray-600 outline-none">
             </div>
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="text" id="loginEmail" placeholder="user@office.com">
+            <div class="flex gap-2">
+                <button onclick="closeAuthModal()" class="flex-1 py-2 border rounded text-xs">Hủy</button>
+                <button onclick="handleAuthSubmit()" class="flex-1 py-2 bg-word-blue text-white rounded text-xs font-bold">Xác nhận</button>
             </div>
-            <div class="form-group">
-                <label>Mật khẩu:</label>
-                <input type="password" id="loginPass" placeholder="••••••••">
-            </div>
-            <button class="btn-primary" onclick="login()">Đăng nhập</button>
         </div>
     </div>
 
-    <div class="modal-overlay" id="registerModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span>Đăng ký</span>
-                <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
-            </div>
-            <div class="form-group">
-                <label>Họ và Tên:</label>
-                <input type="text" id="regName" placeholder="Nguyễn Văn A">
-            </div>
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="email" id="regEmail" placeholder="user@office.com">
-            </div>
-            <div class="form-group">
-                <label>Mật khẩu:</label>
-                <input type="password" id="regPass" placeholder="••••••••">
-            </div>
-            <button class="btn-primary" onclick="register()">Đăng ký</button>
-        </div>
-    </div>
-
+    <!-- JAVASCRIPT CORE LOGIC -->
     <script>
+        let zoomLevel = 100;
         let currentUser = null;
+        let selectedResetType = 'docOnly';
+        let isDrawingMode = false;
+        let isDrawing = false;
+        let canvasCtx = null;
 
-        function switchTab(tabName, element) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.ribbon-panel').forEach(panel => panel.classList.remove('active'));
-            element.classList.add('active');
-            document.getElementById('panel-' + tabName).classList.add('active');
+        window.onload = function() {
+            const saved = localStorage.getItem('ms_word_clone_content');
+            if (saved) document.getElementById('editor').innerHTML = saved;
+            
+            // Canvas Setup
+            const canvas = document.getElementById('drawCanvas');
+            canvasCtx = canvas.getContext('2d');
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            
+            // Global Keyboard Shortcuts
+            window.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveDocumentState();
+                    showToast('💾 Đã lưu văn bản thành công!');
+                } else if (e.ctrlKey && e.key === 'f') {
+                    e.preventDefault();
+                    openFindReplaceModal();
+                } else if (e.ctrlKey && e.key === 'p') {
+                    e.preventDefault();
+                    window.print();
+                }
+            });
+
+            updateDocumentStats();
+        };
+
+        // File Menu Handlers
+        function openFileMenu() {
+            document.getElementById('fileMenuModal').classList.remove('hidden');
         }
 
-        function execCmd(cmd, value = null) {
-            document.execCommand(cmd, false, value);
-            document.getElementById('editor').focus();
+        function closeFileMenu() {
+            document.getElementById('fileMenuModal').classList.add('hidden');
         }
 
-        function saveAndStats() {
-            const text = document.getElementById('editor').innerText.trim();
-            const words = text === "" ? 0 : text.split(/\s+/).length;
-            const charsWith = text.length;
-            const charsWithout = text.replace(/\s+/g, "").length;
-            const paragraphs = text === "" ? 0 : text.split(/\n+/).length;
+        // Tab Navigation Switcher
+        function switchTab(tabName) {
+            document.querySelectorAll('.ribbon-tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-word-blue', 'text-word-blue');
+                btn.classList.add('border-transparent');
+            });
+            document.querySelectorAll('.ribbon-tab-content').forEach(content => content.classList.add('hidden'));
 
-            document.getElementById('wordCount').innerText = `Trang 1 / 1  |  ${words} từ  |  ${charsWith} ký tự  |  ${paragraphs} đoạn`;
-            document.getElementById('statWords').innerText = words;
-            document.getElementById('statCharsWith').innerText = charsWith;
-            document.getElementById('statCharsWithout').innerText = charsWithout;
-            document.getElementById('statParagraphs').innerText = paragraphs;
+            const targetBtn = document.getElementById(`tab-btn-${tabName}`);
+            const targetContent = document.getElementById(`${tabName}-tab`);
 
-            document.getElementById('cloudStatus').innerText = '⏳ Đang lưu...';
-            setTimeout(() => {
-                document.getElementById('cloudStatus').innerText = '☁️ Đã lưu trên Cloud';
-            }, 300);
-
-            if (currentUser) {
-                localStorage.setItem('word_doc_' + currentUser.email, document.getElementById('editor').innerHTML);
+            if (targetBtn && targetContent) {
+                targetBtn.classList.add('active', 'border-word-blue', 'text-word-blue');
+                targetBtn.classList.remove('border-transparent');
+                targetContent.classList.remove('hidden');
             }
         }
 
+        // Execute ExecCommand
+        function executeCommand(cmd, val = null) {
+            document.execCommand(cmd, false, val);
+            document.getElementById('editor').focus();
+            updateDocumentStats();
+        }
+
+        // Freehand Drawing Canvas Controls
+        function toggleDrawMode() {
+            isDrawingMode = !isDrawingMode;
+            const canvas = document.getElementById('drawCanvas');
+            const btnText = document.getElementById('drawModeText');
+            
+            if (isDrawingMode) {
+                canvas.classList.remove('pointer-events-none');
+                btnText.innerText = 'Tắt Chế độ Vẽ';
+                showToast('Đã BẬT Chế độ vẽ tự do!');
+            } else {
+                canvas.classList.add('pointer-events-none');
+                btnText.innerText = 'Bật Chế độ Vẽ';
+                showToast('Đã TẮT Chế độ vẽ.');
+            }
+        }
+
+        function startDrawing(e) {
+            if (!isDrawingMode) return;
+            isDrawing = true;
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function draw(e) {
+            if (!isDrawing || !isDrawingMode) return;
+            canvasCtx.lineTo(e.offsetX, e.offsetY);
+            canvasCtx.stroke();
+        }
+
+        function stopDrawing() { isDrawing = false; }
+
+        function updatePenSettings() {
+            if (!canvasCtx) return;
+            canvasCtx.strokeStyle = document.getElementById('penColor').value;
+            canvasCtx.lineWidth = document.getElementById('penSize').value;
+            canvasCtx.lineCap = 'round';
+        }
+
+        function clearDrawCanvas() {
+            const canvas = document.getElementById('drawCanvas');
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+            showToast('Đã xóa sạch nét vẽ!');
+        }
+
+        // References & Review Tools
+        function generateTableOfContents() {
+            const tocHtml = `
+                <div style="border:1px solid #cbd5e1; padding:15px; margin-bottom:20px; background:#f8fafc;" contenteditable="false">
+                    <h3 style="font-weight:bold; font-size:16px; margin-bottom:10px; color:#185abd;">📋 MỤC LỤC TỰ ĐỘNG</h3>
+                    <ul style="list-style-type:none; padding-left:0; line-height:1.8;">
+                        <li>1. Tổng quan vấn đề ................................................................ Trang 1</li>
+                        <li>2. Nội dung chi tiết ................................................................ Trang 1</li>
+                        <li>3. Kết luận & Kiến nghị ............................................................ Trang 1</li>
+                    </ul>
+                </div><p><br></p>
+            `;
+            executeCommand('insertHTML', tocHtml);
+        }
+
+        function insertFootnote() {
+            const footnoteHtml = `<sup style="color:#185abd; font-weight:bold;">[1]</sup>`;
+            executeCommand('insertHTML', footnoteHtml);
+            showToast('Đã chèn ký hiệu chú thích!');
+        }
+
+        function addComment() {
+            const text = prompt('Nhập nội dung bình luận:');
+            if (!text) return;
+            
+            const commentSidebar = document.getElementById('commentSidebar');
+            const commentList = document.getElementById('commentList');
+            commentSidebar.classList.remove('hidden');
+
+            const item = document.createElement('div');
+            item.className = 'p-2 bg-slate-100 dark:bg-gray-700 rounded border border-slate-200 dark:border-gray-600';
+            item.innerHTML = `<span class="font-bold text-word-blue block">Khách / Tác giả:</span> <span>${text}</span>`;
+            commentList.appendChild(item);
+        }
+
+        function toggleCommentSidebar() {
+            document.getElementById('commentSidebar').classList.toggle('hidden');
+        }
+
+        // Additional Formatting Tools
         function changeCase(type) {
             const sel = window.getSelection();
-            if(!sel.rangeCount) return;
+            if (!sel.rangeCount) return;
             const text = sel.toString();
-            if(!text) return;
+            if (!text) return;
             const converted = type === 'upper' ? text.toUpperCase() : text.toLowerCase();
-            document.execCommand('insertText', false, converted);
-        }
-
-        function handleTellMe(e) {
-            if(e.key === 'Enter') {
-                const query = document.getElementById('tellMeInput').value.toLowerCase().trim();
-                if(query.includes('đậm') || query.includes('bold')) execCmd('bold');
-                else if(query.includes('nghiêng') || query.includes('italic')) execCmd('italic');
-                else if(query.includes('bảng') || query.includes('table')) insertTable();
-                else if(query.includes('in') || query.includes('print')) window.print();
-                else if(query.includes('tải') || query.includes('download')) exportToWord();
-                else alert("Đã thực hiện tìm kiếm công cụ cho: " + query);
-                document.getElementById('tellMeInput').value = '';
-            }
+            executeCommand('insertText', converted);
         }
 
         function insertCoverPage() {
             const coverHtml = `
-                <div style="border-bottom: 3px solid #185abd; padding-bottom: 20px; margin-bottom: 40px; text-align: center;">
-                    <h1 style="font-size: 32px; color: #185abd; margin-bottom: 10px;">BÁO CÁO KẾT QUẢ CÔNG TÁC</h1>
-                    <h3 style="font-size: 18px; color: #605e5c;">Tên Phân Môn / Dự Án Chuyên Môn</h3>
+                <div style="border-bottom:3px solid #185abd; padding-bottom:20px; margin-bottom:40px; text-align:center;">
+                    <h1 style="font-size:32px; color:#185abd; font-weight:bold; margin-bottom:10px;">BÁO CÁO NGIÊN CỨU CHUYÊN MÔN</h1>
+                    <h3 style="font-size:18px; color:#64748b;">Dự án phát triển & Ứng dụng Công nghệ 365</h3>
                 </div>
-                <p style="text-align: right; margin-bottom: 50px;"><b>Người thực hiện:</b> Nguyễn Văn A<br><b>Ngày lập:</b> ${new Date().toLocaleDateString('vi-VN')}</p>
-                <hr style="margin-bottom: 30px;"><p><br></p>
+                <p style="text-align:right; margin-bottom:60px;"><b>Tác giả:</b> Nguyễn Văn A<br><b>Ngày lập:</b> ${new Date().toLocaleDateString('vi-VN')}</p>
+                <hr style="margin-bottom:30px;"><p><br></p>
             `;
-            document.execCommand('insertHTML', false, coverHtml);
+            executeCommand('insertHTML', coverHtml);
         }
 
-        function changeLineSpacing(val) { document.getElementById('editor').style.lineHeight = val; }
+        // Page Color & Gridlines
+        function changePageColor(color) {
+            document.getElementById('editor').style.backgroundColor = color;
+        }
+
+        function toggleGridlines() {
+            document.getElementById('editor').classList.toggle('gridlines-bg');
+        }
+
+        // Stats Counter
+        function updateDocumentStats() {
+            const editor = document.getElementById('editor');
+            const text = editor.innerText.trim();
+            const words = text === "" ? 0 : text.split(/\s+/).length;
+            const chars = text.length;
+
+            document.getElementById('wordCountStats').innerText = `Trang 1 / 1  |  ${words} từ  |  ${chars} ký tự`;
+            saveDocumentState();
+        }
+
+        function openWordCountModal() {
+            const text = document.getElementById('editor').innerText.trim();
+            const words = text === "" ? 0 : text.split(/\s+/).length;
+            const chars = text.length;
+            const charsNoSpace = text.replace(/\s+/g, "").length;
+            const paragraphs = text === "" ? 0 : text.split(/\n+/).length;
+
+            alert(`📊 THỐNG KÊ CHI TIẾT TÀI LIỆU:\n\n• Số từ: ${words}\n• Ký tự (có khoảng trắng): ${chars}\n• Ký tự (không khoảng trắng): ${charsNoSpace}\n• Số đoạn văn: ${paragraphs}\n• Thời gian đọc ước tính: ${Math.ceil(words / 200)} phút`);
+        }
+
+        // Save State
+        function saveDocumentState() {
+            const cloudStatus = document.getElementById('cloudStatus');
+            cloudStatus.innerText = 'Đang lưu...';
+            
+            const content = document.getElementById('editor').innerHTML;
+            const key = currentUser ? `ms_word_user_${currentUser.email}` : 'ms_word_clone_content';
+            localStorage.setItem(key, content);
+            
+            setTimeout(() => {
+                cloudStatus.innerText = 'Đã lưu tự động';
+            }, 300);
+        }
+
+        // Modals & Reset Logic
+        function openResetModal() { document.getElementById('resetModal').classList.remove('hidden'); }
+        function closeResetModal() { document.getElementById('resetModal').classList.add('hidden'); }
+
+        function confirmReset(type) {
+            selectedResetType = type;
+            document.getElementById('resetDocOnly').checked = (type === 'docOnly');
+            document.getElementById('resetFullApp').checked = (type === 'fullApp');
+        }
+
+        function executeReset() {
+            const editor = document.getElementById('editor');
+            const watermark = document.getElementById('watermarkDisplay');
+            
+            if (selectedResetType === 'docOnly' || selectedResetType === 'fullApp') {
+                editor.innerHTML = '<p>Nhập nội dung văn bản của bạn tại đây...</p>';
+                editor.style.backgroundColor = '#ffffff';
+                if (watermark) watermark.innerText = '';
+                clearDrawCanvas();
+                document.getElementById('docTitleDisplay').innerText = 'Văn bản 1 - Word';
+                localStorage.removeItem('ms_word_clone_content');
+            }
+
+            if (selectedResetType === 'fullApp') {
+                localStorage.clear();
+                zoomLevel = 100;
+                editor.style.transform = 'scale(1)';
+                document.getElementById('zoomDisplay').innerText = '100%';
+                document.documentElement.classList.remove('dark');
+            }
+
+            closeResetModal();
+            updateDocumentStats();
+            showToast(selectedResetType === 'fullApp' ? 'Đã đặt lại toàn bộ ứng dụng!' : 'Đã đặt lại nội dung văn bản!');
+        }
+
+        // Watermark Controls
+        function openWatermarkModal() { document.getElementById('watermarkModal').classList.remove('hidden'); }
+        function closeWatermarkModal() { document.getElementById('watermarkModal').classList.add('hidden'); }
+        function applyWatermark() {
+            const text = document.getElementById('watermarkInput').value;
+            setWatermark(text);
+            closeWatermarkModal();
+        }
+        function setWatermark(text) {
+            document.getElementById('watermarkDisplay').innerText = text;
+        }
+
+        // Find & Replace
+        function openFindReplaceModal() { document.getElementById('findReplaceModal').classList.remove('hidden'); }
+        function closeFindReplaceModal() { document.getElementById('findReplaceModal').classList.add('hidden'); }
+        function executeReplace() {
+            const find = document.getElementById('findInput').value;
+            const replace = document.getElementById('replaceInput').value;
+            if (!find) return;
+            const editor = document.getElementById('editor');
+            editor.innerHTML = editor.innerHTML.replaceAll(find, replace);
+            closeFindReplaceModal();
+            updateDocumentStats();
+            showToast('Đã thay thế tất cả!');
+        }
+
+        // Layout & View Adjustments
         function changeOrientation(val) {
             const editor = document.getElementById('editor');
-            if (val === 'landscape') { editor.style.width = '1056px'; editor.style.minHeight = '816px'; }
-            else { editor.style.width = '816px'; editor.style.minHeight = '1056px'; }
+            const canvas = document.getElementById('drawCanvas');
+            if (val === 'landscape') {
+                editor.style.width = '1056px'; editor.style.minHeight = '816px';
+                canvas.width = 1056; canvas.height = 816;
+            } else {
+                editor.style.width = '816px'; editor.style.minHeight = '1056px';
+                canvas.width = 816; canvas.height = 1056;
+            }
         }
-        function changePaperSize(val) {
-            const editor = document.getElementById('editor');
-            if (val === 'Letter') editor.style.width = '850px';
-            else if (val === 'A3') editor.style.width = '1100px';
-            else editor.style.width = '816px';
-        }
+
         function changeMargins(val) {
             const editor = document.getElementById('editor');
             if (val === 'narrow') editor.style.padding = '48px';
-            else if (val === 'wide') editor.style.padding = '150px';
+            else if (val === 'wide') editor.style.padding = '140px';
             else editor.style.padding = '96px';
         }
 
-        function toggleDarkMode() { document.getElementById('editor').classList.toggle('dark-mode'); }
-        function changeZoom(val) {
-            document.getElementById('editor').style.transform = `scale(${val / 100})`;
-            document.getElementById('zoomVal').innerText = val + '%';
-            document.getElementById('zoomStatus').innerText = val + '%';
-        }
-        function toggleWatermark() {
-            const wm = document.getElementById('watermark');
-            wm.style.display = wm.style.display === 'none' ? 'block' : 'none';
+        function toggleRuler() { document.getElementById('rulerHeader').classList.toggle('hidden'); }
+        function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
+        function adjustZoom(delta) {
+            zoomLevel = Math.max(50, Math.min(150, zoomLevel + delta));
+            const editor = document.getElementById('editor');
+            editor.style.transform = `scale(${zoomLevel / 100})`;
+            document.getElementById('zoomDisplay').innerText = `${zoomLevel}%`;
         }
 
-        function insertDateTime() { execCmd('insertText', new Date().toLocaleString('vi-VN')); }
+        // Tell Me Search Command
+        function handleTellMeSearch(e) {
+            if (e.key === 'Enter') {
+                const query = e.target.value.toLowerCase();
+                if (query.includes('đậm') || query.includes('bold')) executeCommand('bold');
+                else if (query.includes('bảng') || query.includes('table')) insertTable();
+                else if (query.includes('vẽ') || query.includes('draw')) toggleDrawMode();
+                else if (query.includes('in') || query.includes('print')) window.print();
+                else if (query.includes('reset')) openResetModal();
+                else showToast(`Thực hiện lệnh cho: ${query}`);
+                e.target.value = '';
+            }
+        }
+
+        // Insert Tools
         function insertTable() {
             const rows = prompt("Số hàng:", "3");
             const cols = prompt("Số cột:", "3");
@@ -462,106 +711,95 @@
                 let html = "<table border='1' style='width:100%; border-collapse: collapse; margin: 15px 0;'>";
                 for (let i = 0; i < rows; i++) {
                     html += "<tr>";
-                    for (let j = 0; j < cols; j++) html += "<td style='border: 1px solid #d2d0ce; padding: 8px;'>&nbsp;</td>";
+                    for (let j = 0; j < cols; j++) html += "<td style='border: 1px solid #cbd5e1; padding: 8px;'>&nbsp;</td>";
                     html += "</tr>";
                 }
                 html += "</table><p><br></p>";
-                document.execCommand('insertHTML', false, html);
+                executeCommand('insertHTML', html);
             }
         }
 
         function insertImage() {
             const url = prompt("Nhập URL hình ảnh:", "https://via.placeholder.com/300");
-            if (url) execCmd('insertImage', url);
+            if (url) executeCommand('insertImage', url);
         }
 
         function insertLink() {
             const url = prompt("Nhập URL liên kết:", "https://");
-            if (url) execCmd('createLink', url);
+            if (url) executeCommand('createLink', url);
         }
 
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
-            document.getElementById('accountDropdown').classList.remove('show');
+        function insertDateTime() {
+            executeCommand('insertText', new Date().toLocaleString('vi-VN'));
         }
 
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-        function performReplace() {
-            const find = document.getElementById('findInput').value;
-            const replace = document.getElementById('replaceInput').value;
-            if (!find) return;
-            const editor = document.getElementById('editor');
-            editor.innerHTML = editor.innerHTML.replaceAll(find, replace);
-            closeModal('findReplaceModal');
-            saveAndStats();
+        // Account / Auth Handlers
+        function toggleAccountMenu() { document.getElementById('accountDropdown').classList.toggle('hidden'); }
+        function openAuthModal(mode) {
+            document.getElementById('authModalTitle').innerText = mode === 'login' ? 'Đăng nhập tài khoản' : 'Đăng ký tài khoản';
+            document.getElementById('authModal').classList.remove('hidden');
+            document.getElementById('accountDropdown').classList.add('hidden');
         }
+        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
 
-        function toggleAccountMenu() { document.getElementById('accountDropdown').classList.toggle('show'); }
-        window.onclick = function(e) { if (!e.target.closest('.account-container')) document.getElementById('accountDropdown').classList.remove('show'); };
-
-        function register() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            if(!name || !email) return alert("Vui lòng điền đầy đủ thông tin!");
-
-            currentUser = { name, email };
-            setUserState();
-            closeModal('registerModal');
-        }
-
-        function login() {
-            const email = document.getElementById('loginEmail').value;
-            if(!email) return alert("Vui lòng nhập Email!");
+        function handleAuthSubmit() {
+            const email = document.getElementById('authEmail').value;
+            if (!email) return alert('Vui lòng nhập email!');
 
             const name = email.split('@')[0];
             currentUser = { name, email };
-            setUserState();
-            closeModal('loginModal');
-        }
+            
+            document.getElementById('userName').innerText = name;
+            document.getElementById('userAvatar').innerText = name.charAt(0).toUpperCase();
+            document.getElementById('userBigAvatar').innerText = name.charAt(0).toUpperCase();
+            document.getElementById('accFullName').innerText = name;
+            document.getElementById('accEmail').innerText = email;
 
-        function setUserState() {
-            const initial = currentUser.name.charAt(0).toUpperCase();
-            document.getElementById('userName').innerText = currentUser.name;
-            document.getElementById('userAvatar').innerText = initial;
-            document.getElementById('userBigAvatar').innerText = initial;
-            document.getElementById('accFullName').innerText = currentUser.name;
-            document.getElementById('accEmail').innerText = currentUser.email;
-
-            document.getElementById('accMenuBody').innerHTML = `
-                <div class="acc-item" onclick="alert('Đã đồng bộ tài liệu lên mây thành công!')">☁️ Đồng bộ OneDrive</div>
-                <div class="acc-item" style="color:red;" onclick="logout()">🚪 Đăng xuất</div>
-            `;
-
-            const saved = localStorage.getItem('word_doc_' + currentUser.email);
-            if(saved) document.getElementById('editor').innerHTML = saved;
-            saveAndStats();
+            closeAuthModal();
+            showToast(`Xin chào ${name}!`);
         }
 
         function logout() {
             currentUser = null;
-            document.getElementById('userName').innerText = "Khách";
-            document.getElementById('userAvatar').innerText = "K";
-            document.getElementById('userBigAvatar').innerText = "K";
-            document.getElementById('accFullName').innerText = "Tài khoản Khách";
-            document.getElementById('accEmail').innerText = "Chưa đăng nhập";
-            document.getElementById('accMenuBody').innerHTML = `
-                <div class="acc-item" onclick="openModal('loginModal')">🔑 Đăng nhập</div>
-                <div class="acc-item" onclick="openModal('registerModal')">📝 Đăng ký tài khoản</div>
-            `;
-            document.getElementById('editor').innerHTML = "";
-            saveAndStats();
+            document.getElementById('userName').innerText = 'Khách';
+            document.getElementById('userAvatar').innerText = 'K';
+            document.getElementById('userBigAvatar').innerText = 'K';
+            document.getElementById('accFullName').innerText = 'Tài khoản Khách';
+            document.getElementById('accEmail').innerText = 'Chưa đăng nhập';
+            document.getElementById('accountDropdown').classList.add('hidden');
+            showToast('Đã đăng xuất!');
         }
 
-        function exportToWord() {
+        function renameDocument() {
+            const title = prompt('Nhập tên văn bản mới:', 'Văn bản 1 - Word');
+            if (title) document.getElementById('docTitleDisplay').innerText = title;
+        }
+
+        function newDocument() {
+            if (confirm('Tạo văn bản mới? Nội dung chưa lưu có thể bị thay thế.')) {
+                document.getElementById('editor').innerHTML = '<p>Nhập nội dung văn bản của bạn tại đây...</p>';
+                clearDrawCanvas();
+                updateDocumentStats();
+            }
+        }
+
+        function exportWordDocument() {
             const content = document.getElementById('editor').innerHTML;
             const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
             const sourceHTML = header + content + "</body></html>";
             const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
             const a = document.createElement("a");
             a.href = source;
-            a.download = 'tai-lieu-word.doc';
+            a.download = 'van-ban-word.doc';
             a.click();
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-lg text-xs z-50 flex items-center gap-2';
+            toast.innerHTML = `<i class="fas fa-circle-check text-green-400"></i> <span>${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
     </script>
 </body>
