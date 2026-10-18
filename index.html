@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Microsoft Word 365 Web Application</title>
+    <!-- Dynamic Word 'W' Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23185abd'/><path d='M7 9h4.5l3.5 12 3.5-12H23l-5.5 15h-4z' fill='white'/></svg>">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -666,9 +668,79 @@
             border-radius: 3px 3px 0 0;
         }
 
+        /* Splash Screen / Startup Overlay */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .splash-logo-box {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #103f91, #185abd);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(24, 90, 189, 0.35);
+            margin-bottom: 20px;
+            animation: pulseLogo 1.5s infinite alternate;
+        }
+        @keyframes pulseLogo {
+            0% { transform: scale(0.96); }
+            100% { transform: scale(1.04); }
+        }
+        .splash-logo-w {
+            color: #ffffff;
+            font-size: 52px;
+            font-weight: 900;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .splash-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--word-blue-dark);
+            letter-spacing: 0.5px;
+        }
+        .splash-loader {
+            width: 140px;
+            height: 4px;
+            background: #e1dfdd;
+            border-radius: 2px;
+            margin-top: 18px;
+            overflow: hidden;
+            position: relative;
+        }
+        .splash-loader-bar {
+            width: 40%;
+            height: 100%;
+            background: var(--word-blue-accent);
+            border-radius: 2px;
+            position: absolute;
+            animation: loaderMove 1.2s infinite ease-in-out;
+        }
+        @keyframes loaderMove {
+            0% { left: -40%; }
+            100% { left: 100%; }
+        }
+
         /* Print styles */
         @media print {
-            .title-bar, .ribbon-tabs, .ribbon-toolbar, .ruler-h-container, .ruler-v, .status-bar, .header-zone, .footer-zone, #drawCanvas, .comments-sidebar { display: none !important; }
+            .splash-screen, .title-bar, .ribbon-tabs, .ribbon-toolbar, .ruler-h-container, .ruler-v, .status-bar, .header-zone, .footer-zone, #drawCanvas, .comments-sidebar { display: none !important; }
             body, .viewport, .main-workspace { background: white !important; padding: 0 !important; overflow: visible !important; }
             .document-page-wrap { box-shadow: none !important; margin: 0 !important; }
             .document-page { width: 100% !important; padding: 0 !important; transform: scale(1) !important; }
@@ -677,10 +749,21 @@
 </head>
 <body>
 
+    <!-- Startup / Splash Loading Overlay -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo-box">
+            <span class="splash-logo-w">W</span>
+        </div>
+        <div class="splash-title">Microsoft Word 365</div>
+        <div class="splash-loader">
+            <div class="splash-loader-bar"></div>
+        </div>
+    </div>
+
     <!-- 1. Header / Title Bar with Authentic Branding -->
     <div class="title-bar">
         <div class="title-bar-left">
-            <div class="word-brand-badge" title="Microsoft Word 365 Web">
+            <div class="word-brand-badge" title="Microsoft Word 365 Web" onclick="openModal('fileModal')">
                 <div class="word-icon-square">W</div>
                 <span class="word-brand-title">Word</span>
             </div>
@@ -712,6 +795,7 @@
                         <div class="name" id="accFullName">Tài khoản Khách</div>
                         <div class="email" id="accEmail">Chưa đăng nhập</div>
                     </div>
+                    <div class="word-icon-square" style="margin-left: auto; width: 32px; height: 32px; font-size: 20px;" title="Word 365">W</div>
                 </div>
                 
                 <div class="onedrive-meter">
@@ -1074,7 +1158,10 @@
     <div class="modal-overlay" id="fileModal">
         <div class="modal-card">
             <div class="modal-header">
-                <span><i class="fa-solid fa-folder-open"></i> Quản lý Tệp - Microsoft Word 365</span>
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
+                    Quản lý Tệp - Microsoft Word 365
+                </span>
                 <button class="modal-close" onclick="closeModal('fileModal')">✕</button>
             </div>
             <p style="font-size: 13px; margin-bottom: 12px; color: #605e5c;">Chọn thao tác đối với tài liệu hiện tại:</p>
@@ -1090,7 +1177,10 @@
     <div class="modal-overlay" id="findReplaceModal">
         <div class="modal-card">
             <div class="modal-header">
-                <span><i class="fa-solid fa-binoculars"></i> Tìm kiếm & Thay thế</span>
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
+                    Tìm kiếm & Thay thế
+                </span>
                 <button class="modal-close" onclick="closeModal('findReplaceModal')">✕</button>
             </div>
             <div class="form-group">
@@ -1109,7 +1199,10 @@
     <div class="modal-overlay" id="statsModal">
         <div class="modal-card">
             <div class="modal-header">
-                <span><i class="fa-solid fa-chart-pie"></i> Thống kê Tài liệu</span>
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
+                    Thống kê Tài liệu
+                </span>
                 <button class="modal-close" onclick="closeModal('statsModal')">✕</button>
             </div>
             <div style="font-size:13px; line-height: 1.8;" id="statsModalBody">
@@ -1123,7 +1216,10 @@
     <div class="modal-overlay" id="symbolModal">
         <div class="modal-card">
             <div class="modal-header">
-                <span>Chèn Ký Tự Đặc Biệt</span>
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
+                    Chèn Ký Tự Đặc Biệt
+                </span>
                 <button class="modal-close" onclick="closeModal('symbolModal')">✕</button>
             </div>
             <div class="symbol-grid">
@@ -1151,7 +1247,10 @@
     <div class="modal-overlay" id="loginModal">
         <div class="modal-card">
             <div class="modal-header">
-                <span>Đăng nhập Microsoft 365</span>
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
+                    Đăng nhập Microsoft 365
+                </span>
                 <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
             </div>
             <div class="form-group">
@@ -1170,7 +1269,10 @@
     <div class="modal-overlay" id="registerModal">
         <div class="modal-card">
             <div class="modal-header">
-                <span>Đăng ký Tài khoản Mới</span>
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <div class="word-icon-square" style="width:24px; height:24px; font-size:15px; font-weight:bold;">W</div>
+                    Đăng ký Tài khoản Mới
+                </span>
                 <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
             </div>
             <div class="form-group">
@@ -1215,6 +1317,12 @@
             loadUserData();
             saveAndStats();
             setupShortcuts();
+
+            // Hide startup splash screen
+            setTimeout(() => {
+                const splash = document.getElementById('splashScreen');
+                if (splash) splash.classList.add('hidden');
+            }, 600);
         };
 
         // Keyboard Shortcuts
