@@ -1,233 +1,568 @@
-<!-- ... existing code ... -->
-            <!-- Quick Access Toolbar Buttons -->
-            <button class="p-1.5 hover:bg-blue-800 rounded text-xs flex items-center gap-1 transition" title="Save (Auto-saves to LocalStorage)">
-                <i class="fas font-solid fa-floppy-disk"></i>
-            </button>
-            <button class="p-1.5 hover:bg-blue-800 rounded text-xs transition" title="Undo" onclick="document.execCommand('undo')">
-                <i class="fas fa-undo"></i>
-            </button>
-            <button class="p-1.5 hover:bg-blue-800 rounded text-xs transition" title="Redo" onclick="document.execCommand('redo')">
-                <i class="fas fa-redo"></i>
-            </button>
-            <button class="p-1.5 hover:bg-red-700/80 hover:bg-red-700 rounded text-xs transition flex items-center gap-1 text-white" title="Reset Document" onclick="openResetModal()">
-                <i class="fas fa-rotate-left"></i>
-                <span class="hidden sm:inline text-xs font-medium">Reset</span>
-            </button>
-        </div>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Word 365 - Supercharge Edition</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f3f2f1; height: 100vh; display: flex; flex-direction: column; color: #323130; overflow: hidden; }
         
-        <!-- App Title & Search Bar -->
-        <div class="flex-1 max-w-xl mx-4 flex items-center gap-2">
-            <span id="docTitleDisplay" class="font-semibold text-sm truncate cursor-pointer hover:underline" onclick="renameDocument()">Văn bản chưa đặt tên - Word</span>
-<!-- ... existing code ... -->
-                <!-- HOME TAB CONTENT -->
-                <div id="home-tab" class="ribbon-tab-content flex items-center gap-3 overflow-x-auto py-1">
-                    <!-- Undo/Clipboard Group -->
-                    <div class="flex items-center gap-1 pr-3 border-r border-slate-200 dark:border-gray-700">
-                        <button onclick="document.execCommand('undo')" class="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-gray-700 flex flex-col items-center text-xs" title="Hoàn tác (Ctrl+Z)">
-                            <i class="fas fa-undo text-blue-600 dark:text-blue-400 text-sm"></i>
-                            <span class="text-[10px]">Undo</span>
-                        </button>
-                        <button onclick="document.execCommand('redo')" class="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-gray-700 flex flex-col items-center text-xs" title="Làm lại (Ctrl+Y)">
-                            <i class="fas fa-redo text-blue-600 dark:text-blue-400 text-sm"></i>
-                            <span class="text-[10px]">Redo</span>
-                        </button>
-                    </div>
+        /* Title Bar & Quick Search */
+        .title-bar { background: #2b579a; color: white; padding: 5px 15px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+        .title-bar-left { display: flex; align-items: center; gap: 12px; }
+        .title-bar input.doc-title { background: transparent; border: none; color: white; font-size: 14px; font-weight: bold; outline: none; padding: 2px 5px; border-radius: 2px; width: 180px; }
+        .title-bar input.doc-title:hover, .title-bar input.doc-title:focus { background: rgba(255,255,255,0.15); }
 
-                    <!-- Font Formatting Group -->
-                    <div class="flex items-center gap-1 pr-3 border-r border-slate-200 dark:border-gray-700">
-                        <select onchange="executeCommand('fontName', this.value)" class="text-xs border rounded p-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="Arial">Arial</option>
-                            <option value="Calibri" selected>Calibri</option>
-                            <option value="Times New Roman">Times New Roman</option>
-                            <option value="Courier New">Courier New</option>
-                            <option value="Georgia">Georgia</option>
-                            <option value="Segoe UI">Segoe UI</option>
-                        </select>
-                        <select onchange="executeCommand('fontSize', this.value)" class="text-xs border rounded p-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="1">8pt</option>
-                            <option value="2">10pt</option>
-                            <option value="3" selected>12pt</option>
-                            <option value="4">14pt</option>
-                            <option value="5">18pt</option>
-                            <option value="6">24pt</option>
-                            <option value="7">36pt</option>
-                        </select>
-                        <button onclick="executeCommand('bold')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 font-bold text-xs" title="In đậm (Ctrl+B)">B</button>
-                        <button onclick="executeCommand('italic')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 italic text-xs" title="In nghiêng (Ctrl+I)">I</button>
-                        <button onclick="executeCommand('underline')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 underline text-xs" title="Gạch chân (Ctrl+U)">U</button>
-                        <button onclick="executeCommand('strikeThrough')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 line-through text-xs" title="Gạch ngang">S</button>
-                        <input type="color" onchange="executeCommand('foreColor', this.value)" class="w-6 h-6 p-0 border-0 cursor-pointer rounded" title="Màu chữ">
-                        <input type="color" onchange="executeCommand('hiliteColor', this.value)" value="#ffff00" class="w-6 h-6 p-0 border-0 cursor-pointer rounded" title="Màu nền chữ (Highlight)">
-                    </div>
+        /* Search Tell Me Bar */
+        .search-tellme { position: relative; background: rgba(255,255,255,0.2); border-radius: 4px; display: flex; align-items: center; padding: 2px 8px; width: 220px; }
+        .search-tellme input { background: transparent; border: none; color: white; font-size: 12px; outline: none; width: 100%; }
+        .search-tellme input::placeholder { color: rgba(255,255,255,0.7); }
 
-                    <!-- Paragraph Alignment & List Group -->
-                    <div class="flex items-center gap-1 pr-3 border-r border-slate-200 dark:border-gray-700">
-                        <button onclick="executeCommand('justifyLeft')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn trái"><i class="fas fa-align-left"></i></button>
-                        <button onclick="executeCommand('justifyCenter')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn giữa"><i class="fas fa-align-center"></i></button>
-                        <button onclick="executeCommand('justifyRight')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn phải"><i class="fas fa-align-right"></i></button>
-                        <button onclick="executeCommand('justifyFull')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Căn đều"><i class="fas fa-align-justify"></i></button>
-                        <button onclick="executeCommand('insertUnorderedList')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Danh sách dấu đầu dòng"><i class="fas fa-list-ul"></i></button>
-                        <button onclick="executeCommand('insertOrderedList')" class="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-gray-700 text-xs" title="Danh sách số"><i class="fas fa-list-ol"></i></button>
-                    </div>
+        /* Account Hub */
+        .account-container { position: relative; display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 3px 8px; border-radius: 4px; }
+        .account-container:hover { background: rgba(255,255,255,0.15); }
+        .account-avatar { width: 28px; height: 28px; border-radius: 50%; background: #0078d4; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; border: 1px solid white; }
 
-                    <!-- Reset Shortcut Action -->
-                    <div class="flex items-center gap-1">
-                        <button onclick="openResetModal()" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-300 rounded border border-red-200 dark:border-red-800 font-medium text-xs flex items-center gap-1.5 transition">
-                            <i class="fas fa-rotate-left text-red-600 dark:text-red-400"></i>
-                            <span>Đặt lại Word</span>
-                        </button>
-                    </div>
-                </div>
-<!-- ... existing code ... -->
-        <!-- FILE / BACKSTAGE MENU OVERLAY -->
-        <div id="fileMenuModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex">
-            <div class="w-64 bg-blue-900 text-white flex flex-col p-4 shadow-2xl">
-                <div class="flex items-center gap-3 mb-8 px-2">
-                    <svg class="w-8 h-8 text-white fill-current" viewBox="0 0 24 24"><path d="M21.17 3H7.83A1.83 1.83 0 0 0 6 4.83v14.34A1.83 1.83 0 0 0 7.83 21h13.34A1.83 1.83 0 0 0 23 19.17V4.83A1.83 1.83 0 0 0 21.17 3zM12 16.5h-2l-1.5-6-1.5 6H5l-2-9h2.1l1.1 5.8 1.5-5.8h1.6l1.5 5.8 1.1-5.8H14l-2 9z"/></svg>
-                    <span class="font-semibold text-lg">Microsoft Word</span>
-                </div>
-                <nav class="flex-1 space-y-1">
-                    <button onclick="newDocument()" class="w-full text-left px-3 py-2 rounded hover:bg-blue-800 flex items-center gap-3 text-sm font-medium">
-                        <i class="fas fa-file-circle-plus"></i> Tạo văn bản mới
-                    </button>
-                    <button onclick="exportWordDocument()" class="w-full text-left px-3 py-2 rounded hover:bg-blue-800 flex items-center gap-3 text-sm font-medium">
-                        <i class="fas fa-file-word"></i> Xuất ra file Docx/HTML
-                    </button>
-                    <button onclick="openWatermarkModal()" class="w-full text-left px-3 py-2 rounded hover:bg-blue-800 flex items-center gap-3 text-sm font-medium">
-                        <i class="fas fa-stamp"></i> Thêm Chìm Watermark
-                    </button>
-                    <button onclick="openResetModal(); closeFileMenu();" class="w-full text-left px-3 py-2 rounded hover:bg-red-800/80 bg-red-900/40 text-red-200 flex items-center gap-3 text-sm font-medium mt-4">
-                        <i class="fas fa-rotate-left text-red-400"></i> Đặt lại / Reset Văn bản
-                    </button>
-                </nav>
-                <button onclick="closeFileMenu()" class="mt-auto px-3 py-2 border border-blue-700 hover:bg-blue-800 rounded text-xs text-slate-200 flex items-center justify-center gap-2">
-                    <i class="fas fa-arrow-left"></i> Quay lại làm việc
-                </button>
+        .account-dropdown { display: none; position: absolute; top: 40px; right: 0; background: #ffffff; color: #323130; width: 290px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); border-radius: 4px; z-index: 1000; border: 1px solid #e1dfdd; }
+        .account-dropdown.show { display: block; }
+        .acc-header { background: #f3f2f1; padding: 12px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #e1dfdd; }
+        .acc-big-avatar { width: 40px; height: 40px; border-radius: 50%; background: #185abd; color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
+        .acc-info .name { font-weight: bold; font-size: 13px; }
+        .acc-info .email { font-size: 11px; color: #605e5c; }
+        .acc-item { padding: 8px 15px; font-size: 13px; cursor: pointer; display: flex; gap: 8px; align-items: center; }
+        .acc-item:hover { background: #f3f2f1; }
+
+        /* Ribbon Tabs */
+        .ribbon-tabs { background: #f3f2f1; display: flex; border-bottom: 1px solid #e1dfdd; padding: 0 10px; }
+        .tab-btn { padding: 8px 16px; font-size: 13px; cursor: pointer; border: none; background: transparent; color: #605e5c; font-weight: 500; }
+        .tab-btn.active { background: #ffffff; border-bottom: 2px solid #2b579a; color: #2b579a; font-weight: bold; }
+
+        /* Ribbon Toolbar */
+        .ribbon-toolbar { background: #ffffff; border-bottom: 1px solid #e1dfdd; padding: 8px 15px; display: flex; gap: 12px; align-items: center; height: 95px; overflow-x: auto; }
+        .ribbon-panel { display: none; gap: 12px; align-items: center; height: 100%; }
+        .ribbon-panel.active { display: flex; }
+        .ribbon-group { display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding-right: 12px; border-right: 1px solid #e1dfdd; }
+        .ribbon-group:last-child { border-right: none; }
+        .group-buttons { display: flex; align-items: center; gap: 4px; }
+        .group-label { font-size: 11px; color: #605e5c; text-align: center; margin-top: 4px; }
+
+        button, select {
+            background: #ffffff; border: 1px solid #d2d0ce; padding: 4px 8px; border-radius: 2px; cursor: pointer; font-size: 12px; height: 28px; display: flex; align-items: center; justify-content: center; color: #323130;
+        }
+        button:hover, select:hover { background: #f3f2f1; border-color: #b3b0ad; }
+        .tool-btn { min-width: 28px; font-weight: bold; }
+        input[type="color"] { border: 1px solid #d2d0ce; width: 28px; height: 28px; padding: 0; background: none; cursor: pointer; border-radius: 2px; }
+
+        /* Ruler Bar */
+        .ruler-container { background: #e6e6e6; display: flex; justify-content: center; border-bottom: 1px solid #d2d0ce; }
+        .ruler { width: 816px; height: 18px; background: #ffffff; border-left: 1px solid #b3b0ad; border-right: 1px solid #b3b0ad; position: relative; font-size: 9px; color: #605e5c; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 5px; }
+
+        /* Document Viewport */
+        .viewport { flex: 1; overflow-y: auto; padding: 25px 40px; display: flex; justify-content: center; background: #e6e6e6; transition: background 0.3s; }
+        .document-page {
+            background: #ffffff; width: 816px; min-height: 1056px; padding: 96px; 
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15); outline: none; line-height: 1.6; font-size: 15px; color: #323130; position: relative;
+        }
+        .document-page.dark-mode { background: #1e1e1e; color: #e0e0e0; }
+
+        /* Watermark */
+        .watermark { position: absolute; top: 40%; left: 15%; transform: rotate(-45deg); font-size: 60px; color: rgba(0,0,0,0.06); font-weight: bold; pointer-events: none; user-select: none; }
+
+        /* Status Bar */
+        .status-bar { background: #f3f2f1; border-top: 1px solid #e1dfdd; padding: 4px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #605e5c; }
+        .status-right { display: flex; gap: 15px; align-items: center; }
+        .cloud-status { color: #107c41; font-weight: 500; }
+
+        /* Modals */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-card { background: white; width: 380px; padding: 20px; border-radius: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        .modal-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; color: #2b579a; display: flex; justify-content: space-between; align-items: center; }
+        .modal-close { cursor: pointer; border: none; background: none; font-size: 16px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; margin-bottom: 4px; color: #605e5c; }
+        .form-group input { width: 100%; padding: 6px 8px; border: 1px solid #d2d0ce; border-radius: 2px; font-size: 13px; outline: none; }
+        .btn-primary { width: 100%; background: #185abd; color: white; border: none; padding: 8px; border-radius: 2px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .btn-primary:hover { background: #104a9e; }
+        .stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f3f2f1; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <!-- Title Bar -->
+    <div class="title-bar">
+        <div class="title-bar-left">
+            <span style="font-weight: bold; background: #185abd; padding: 2px 6px; border-radius: 2px;">W</span>
+            <input type="text" class="doc-title" value="Báo cáo Mới - Word">
+            
+            <!-- Tell Me Search Bar -->
+            <div class="search-tellme">
+                <span>🔍</span>
+                <input type="text" id="tellMeInput" placeholder="Cho tôi biết bạn muốn làm gì..." onkeypress="handleTellMe(event)">
             </div>
-            <div class="flex-1" onclick="closeFileMenu()"></div>
         </div>
 
-        <!-- RESET CONFIRMATION MODAL -->
-        <div id="resetModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-gray-700 animate-in fade-in zoom-in duration-150">
-                <div class="p-5 border-b border-slate-100 dark:border-gray-700 flex items-center justify-between bg-slate-50 dark:bg-gray-800/50">
-                    <div class="flex items-center gap-3 text-red-600 dark:text-red-400">
-                        <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                            <i class="fas fa-triangle-exclamation text-lg"></i>
-                        </div>
-                        <h3 class="font-semibold text-base text-gray-900 dark:text-white">Đặt lại Văn bản & Tùy chọn</h3>
-                    </div>
-                    <button onclick="closeResetModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                        <i class="fas fa-xmark text-lg"></i>
-                    </button>
-                </div>
-                
-                <div class="p-6 space-y-4">
-                    <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                        Bạn có chắc chắn muốn đặt lại / xóa toàn bộ nội dung văn bản về mặc định không?
-                    </p>
-                    
-                    <div class="space-y-3 pt-2">
-                        <div class="p-3 border rounded-lg border-slate-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-700 bg-slate-50/50 dark:bg-gray-700/30 cursor-pointer flex items-start gap-3 transition" onclick="confirmReset('docOnly')">
-                            <input type="radio" name="resetOption" id="resetDocOnly" checked class="mt-1 text-blue-600 focus:ring-blue-500">
-                            <label for="resetDocOnly" class="cursor-pointer text-xs space-y-0.5">
-                                <span class="font-semibold text-gray-800 dark:text-gray-200 block">Chỉ đặt lại nội dung văn bản</span>
-                                <span class="text-gray-500 dark:text-gray-400 block">Xóa trang trắng, vẽ canvas, comment và watermark. Giữ nguyên giao diện người dùng.</span>
-                            </label>
-                        </div>
+        <!-- Account Hub -->
+        <div class="account-container" onclick="toggleAccountMenu()">
+            <div class="account-avatar" id="userAvatar">K</div>
+            <div class="account-name" id="userName">Khách</div>
+            <span>▼</span>
 
-                        <div class="p-3 border rounded-lg border-slate-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-700 bg-slate-50/50 dark:bg-gray-700/30 cursor-pointer flex items-start gap-3 transition" onclick="confirmReset('fullApp')">
-                            <input type="radio" name="resetOption" id="resetFullApp" class="mt-1 text-blue-600 focus:ring-blue-500">
-                            <label for="resetFullApp" class="cursor-pointer text-xs space-y-0.5">
-                                <span class="font-semibold text-red-600 dark:text-red-400 block">Đặt lại toàn bộ ứng dụng & LocalStorage</span>
-                                <span class="text-gray-500 dark:text-gray-400 block">Khôi phục cài đặt gốc, zoom, thước đo, giao diện sáng/tối và bộ nhớ trình duyệt.</span>
-                            </label>
-                        </div>
+            <div class="account-dropdown" id="accountDropdown" onclick="event.stopPropagation()">
+                <div class="acc-header">
+                    <div class="acc-big-avatar" id="userBigAvatar">K</div>
+                    <div class="acc-info">
+                        <div class="name" id="accFullName">Tài khoản Khách</div>
+                        <div class="email" id="accEmail">Chưa đăng nhập</div>
                     </div>
                 </div>
-
-                <div class="p-4 bg-slate-50 dark:bg-gray-800/80 border-t border-slate-100 dark:border-gray-700 flex justify-end gap-2">
-                    <button onclick="closeResetModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-xs font-medium transition">
-                        Hủy bỏ
-                    </button>
-                    <button onclick="executeReset()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium shadow-sm transition flex items-center gap-1.5">
-                        <i class="fas fa-rotate-left"></i> Xác nhận Đặt lại
-                    </button>
+                <div class="acc-body" id="accMenuBody">
+                    <div class="acc-item" onclick="openModal('loginModal')">🔑 Đăng nhập</div>
+                    <div class="acc-item" onclick="openModal('registerModal')">📝 Đăng ký tài khoản</div>
                 </div>
             </div>
         </div>
-<!-- ... existing code ... -->
+    </div>
+
+    <!-- Ribbon Tabs -->
+    <div class="ribbon-tabs">
+        <button class="tab-btn active" onclick="switchTab('home', this)">Trang chủ</button>
+        <button class="tab-btn" onclick="switchTab('insert', this)">Chèn</button>
+        <button class="tab-btn" onclick="switchTab('layout', this)">Bố trí</button>
+        <button class="tab-btn" onclick="switchTab('view', this)">Xem</button>
+    </div>
+
+    <!-- Ribbon Toolbar -->
+    <div class="ribbon-toolbar">
+        <!-- HOME PANEL -->
+        <div class="ribbon-panel active" id="panel-home">
+            <div class="ribbon-group">
+                <div class="group-buttons">
+                    <select onchange="execCmd('fontName', this.value)" style="width: 120px;">
+                        <option value="Calibri" selected>Calibri</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Segoe UI">Segoe UI</option>
+                    </select>
+                    <select onchange="execCmd('fontSize', this.value)">
+                        <option value="3">11 pt</option>
+                        <option value="1">8 pt</option>
+                        <option value="4">14 pt</option>
+                        <option value="6">24 pt</option>
+                    </select>
+                </div>
+                <div class="group-buttons">
+                    <button class="tool-btn" onclick="execCmd('bold')">B</button>
+                    <button class="tool-btn" onclick="execCmd('italic')"><i>I</i></button>
+                    <button class="tool-btn" onclick="execCmd('underline')"><u>U</u></button>
+                    <button class="tool-btn" onclick="execCmd('strikeThrough')"><s>S</s></button>
+                    <button onclick="changeCase('upper')">AA</button>
+                    <button onclick="changeCase('lower')">aa</button>
+                    <input type="color" onchange="execCmd('foreColor', this.value)" title="Màu chữ">
+                    <input type="color" onchange="execCmd('hiliteColor', this.value)" title="Highlight" value="#ffff00">
+                </div>
+                <div class="group-label">Phông chữ & Kiểu chữ</div>
+            </div>
+
+            <div class="ribbon-group">
+                <div class="group-buttons">
+                    <button onclick="execCmd('justifyLeft')">⬅ Trái</button>
+                    <button onclick="execCmd('justifyCenter')">↔ Giữa</button>
+                    <button onclick="execCmd('justifyRight')">➔ Phải</button>
+                    <button onclick="execCmd('justifyFull')">☰ Đều</button>
+                </div>
+                <div class="group-buttons">
+                    <button onclick="execCmd('insertUnorderedList')">• Danh sách</button>
+                    <button onclick="execCmd('insertOrderedList')">1. Danh sách</button>
+                    <button onclick="changeLineSpacing(1.15)">↕ Dãn dòng</button>
+                </div>
+                <div class="group-label">Đoạn văn</div>
+            </div>
+
+            <div class="ribbon-group">
+                <div class="group-buttons">
+                    <button onclick="openModal('findReplaceModal')">🔍 Tìm & Thay thế</button>
+                    <button onclick="openModal('statsModal')">📊 Thống kê từ</button>
+                </div>
+                <div class="group-buttons">
+                    <button onclick="exportToWord()" style="background:#2b579a; color:white; font-weight:bold;">💾 Tải file (.doc)</button>
+                </div>
+                <div class="group-label">Hệ thống</div>
+            </div>
+        </div>
+
+        <!-- INSERT PANEL -->
+        <div class="ribbon-panel" id="panel-insert">
+            <div class="ribbon-group">
+                <div class="group-buttons">
+                    <button onclick="insertCoverPage()">📄 Trang bìa mẫu</button>
+                    <button onclick="insertTable()">📊 Bảng</button>
+                    <button onclick="insertImage()">🖼️ Hình ảnh</button>
+                </div>
+                <div class="group-buttons">
+                    <button onclick="insertLink()">🔗 Liên kết</button>
+                    <button onclick="insertDateTime()">🕒 Ngày giờ</button>
+                    <button onclick="execCmd('insertHorizontalRule')">➖ Đường kẻ</button>
+                </div>
+                <div class="group-label">Chèn trang & Mẫu</div>
+            </div>
+        </div>
+
+        <!-- LAYOUT PANEL -->
+        <div class="ribbon-panel" id="panel-layout">
+            <div class="ribbon-group">
+                <div class="group-buttons">
+                    <select onchange="changeOrientation(this.value)">
+                        <option value="portrait">Hướng dọc</option>
+                        <option value="landscape">Hướng ngang</option>
+                    </select>
+                    <select onchange="changePaperSize(this.value)">
+                        <option value="A4">Khổ A4</option>
+                        <option value="Letter">Khổ Letter</option>
+                        <option value="A3">Khổ A3</option>
+                    </select>
+                </div>
+                <div class="group-buttons">
+                    <select onchange="changeMargins(this.value)">
+                        <option value="normal">Căn lề Chuẩn</option>
+                        <option value="narrow">Căn lề Hẹp</option>
+                        <option value="wide">Căn lề Rộng</option>
+                    </select>
+                    <button onclick="toggleWatermark()">💧 Watermark</button>
+                </div>
+                <div class="group-label">Định dạng trang</div>
+            </div>
+        </div>
+
+        <!-- VIEW PANEL -->
+        <div class="ribbon-panel" id="panel-view">
+            <div class="ribbon-group">
+                <div class="group-buttons">
+                    <button onclick="toggleDarkMode()">🌙 Chế độ Tối / Sáng</button>
+                    <button onclick="window.print()">🖨️ In ấn</button>
+                </div>
+                <div class="group-buttons">
+                    <label style="font-size:12px;">Zoom: </label>
+                    <input type="range" min="50" max="150" value="100" oninput="changeZoom(this.value)" style="width:90px;">
+                    <span id="zoomVal">100%</span>
+                </div>
+                <div class="group-label">Chế độ xem</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thước kẻ -->
+    <div class="ruler-container">
+        <div class="ruler">
+            <span>| 0</span><span>| 1</span><span>| 2</span><span>| 3</span><span>| 4</span>
+            <span>| 5</span><span>| 6</span><span>| 7</span><span>| 8</span><span>| 9</span>
+        </div>
+    </div>
+
+    <!-- Viewport -->
+    <div class="viewport">
+        <div class="document-page" contenteditable="true" id="editor" oninput="saveAndStats()" spellcheck="false">
+            <div class="watermark" id="watermark" style="display:none;">BẢN NHÁP</div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div style="display:flex; gap:15px; align-items:center;">
+            <span id="wordCount">Trang 1 / 1  |  0 từ  |  0 ký tự</span>
+            <span class="cloud-status" id="cloudStatus">☁️ Đã lưu trên Cloud</span>
+        </div>
+        <div class="status-right">
+            <span>Tiếng Việt (Việt Nam)</span>
+            <span id="zoomStatus">100%</span>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="findReplaceModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span>Tìm kiếm & Thay thế</span>
+                <button class="modal-close" onclick="closeModal('findReplaceModal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Từ cần tìm:</label>
+                <input type="text" id="findInput" placeholder="Nhập từ cần tìm...">
+            </div>
+            <div class="form-group">
+                <label>Thay thế bằng:</label>
+                <input type="text" id="replaceInput" placeholder="Nhập từ thay thế...">
+            </div>
+            <button class="btn-primary" onclick="performReplace()">Thay thế tất cả</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="statsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span>Thống kê chi tiết</span>
+                <button class="modal-close" onclick="closeModal('statsModal')">✕</button>
+            </div>
+            <div class="stat-row"><span>Tổng số từ:</span> <strong id="statWords">0</strong></div>
+            <div class="stat-row"><span>Ký tự (có khoảng trắng):</span> <strong id="statCharsWith">0</strong></div>
+            <div class="stat-row"><span>Ký tự (không khoảng trắng):</span> <strong id="statCharsWithout">0</strong></div>
+            <div class="stat-row"><span>Số đoạn văn:</span> <strong id="statParagraphs">0</strong></div>
+            <button class="btn-primary" onclick="closeModal('statsModal')" style="margin-top: 15px;">Đóng</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span>Đăng nhập</span>
+                <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="text" id="loginEmail" placeholder="user@office.com">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu:</label>
+                <input type="password" id="loginPass" placeholder="••••••••">
+            </div>
+            <button class="btn-primary" onclick="login()">Đăng nhập</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span>Đăng ký</span>
+                <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Họ và Tên:</label>
+                <input type="text" id="regName" placeholder="Nguyễn Văn A">
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="regEmail" placeholder="user@office.com">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu:</label>
+                <input type="password" id="regPass" placeholder="••••••••">
+            </div>
+            <button class="btn-primary" onclick="register()">Đăng ký</button>
+        </div>
+    </div>
+
     <script>
-        // --- RESET FUNCTIONALITY IMPLEMENTATION --- //
-        let selectedResetType = 'docOnly';
+        let currentUser = null;
 
-        function openResetModal() {
-            document.getElementById('resetModal').classList.remove('hidden');
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.ribbon-panel').forEach(panel => panel.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('panel-' + tabName).classList.add('active');
         }
 
-        function closeResetModal() {
-            document.getElementById('resetModal').classList.add('hidden');
+        function execCmd(cmd, value = null) {
+            document.execCommand(cmd, false, value);
+            document.getElementById('editor').focus();
         }
 
-        function confirmReset(type) {
-            selectedResetType = type;
-            document.getElementById('resetDocOnly').checked = (type === 'docOnly');
-            document.getElementById('resetFullApp').checked = (type === 'fullApp');
+        function saveAndStats() {
+            const text = document.getElementById('editor').innerText.trim();
+            const words = text === "" ? 0 : text.split(/\s+/).length;
+            const charsWith = text.length;
+            const charsWithout = text.replace(/\s+/g, "").length;
+            const paragraphs = text === "" ? 0 : text.split(/\n+/).length;
+
+            document.getElementById('wordCount').innerText = `Trang 1 / 1  |  ${words} từ  |  ${charsWith} ký tự  |  ${paragraphs} đoạn`;
+            document.getElementById('statWords').innerText = words;
+            document.getElementById('statCharsWith').innerText = charsWith;
+            document.getElementById('statCharsWithout').innerText = charsWithout;
+            document.getElementById('statParagraphs').innerText = paragraphs;
+
+            document.getElementById('cloudStatus').innerText = '⏳ Đang lưu...';
+            setTimeout(() => {
+                document.getElementById('cloudStatus').innerText = '☁️ Đã lưu trên Cloud';
+            }, 300);
+
+            if (currentUser) {
+                localStorage.setItem('word_doc_' + currentUser.email, document.getElementById('editor').innerHTML);
+            }
         }
 
-        function executeReset() {
+        function changeCase(type) {
+            const sel = window.getSelection();
+            if(!sel.rangeCount) return;
+            const text = sel.toString();
+            if(!text) return;
+            const converted = type === 'upper' ? text.toUpperCase() : text.toLowerCase();
+            document.execCommand('insertText', false, converted);
+        }
+
+        function handleTellMe(e) {
+            if(e.key === 'Enter') {
+                const query = document.getElementById('tellMeInput').value.toLowerCase().trim();
+                if(query.includes('đậm') || query.includes('bold')) execCmd('bold');
+                else if(query.includes('nghiêng') || query.includes('italic')) execCmd('italic');
+                else if(query.includes('bảng') || query.includes('table')) insertTable();
+                else if(query.includes('in') || query.includes('print')) window.print();
+                else if(query.includes('tải') || query.includes('download')) exportToWord();
+                else alert("Đã thực hiện tìm kiếm công cụ cho: " + query);
+                document.getElementById('tellMeInput').value = '';
+            }
+        }
+
+        function insertCoverPage() {
+            const coverHtml = `
+                <div style="border-bottom: 3px solid #185abd; padding-bottom: 20px; margin-bottom: 40px; text-align: center;">
+                    <h1 style="font-size: 32px; color: #185abd; margin-bottom: 10px;">BÁO CÁO KẾT QUẢ CÔNG TÁC</h1>
+                    <h3 style="font-size: 18px; color: #605e5c;">Tên Phân Môn / Dự Án Chuyên Môn</h3>
+                </div>
+                <p style="text-align: right; margin-bottom: 50px;"><b>Người thực hiện:</b> Nguyễn Văn A<br><b>Ngày lập:</b> ${new Date().toLocaleDateString('vi-VN')}</p>
+                <hr style="margin-bottom: 30px;"><p><br></p>
+            `;
+            document.execCommand('insertHTML', false, coverHtml);
+        }
+
+        function changeLineSpacing(val) { document.getElementById('editor').style.lineHeight = val; }
+        function changeOrientation(val) {
             const editor = document.getElementById('editor');
-            const watermark = document.getElementById('watermarkDisplay');
-            const drawCanvas = document.getElementById('drawCanvas');
-            
-            if (selectedResetType === 'docOnly' || selectedResetType === 'fullApp') {
-                // Clear Document Content & Reset Page Setup
-                editor.innerHTML = '<p>Nhập nội dung văn bản của bạn tại đây...</p>';
-                watermark.innerText = '';
-                
-                // Clear Draw Canvas
-                if (drawCanvas) {
-                    const ctx = drawCanvas.getContext('2d');
-                    ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            if (val === 'landscape') { editor.style.width = '1056px'; editor.style.minHeight = '816px'; }
+            else { editor.style.width = '816px'; editor.style.minHeight = '1056px'; }
+        }
+        function changePaperSize(val) {
+            const editor = document.getElementById('editor');
+            if (val === 'Letter') editor.style.width = '850px';
+            else if (val === 'A3') editor.style.width = '1100px';
+            else editor.style.width = '816px';
+        }
+        function changeMargins(val) {
+            const editor = document.getElementById('editor');
+            if (val === 'narrow') editor.style.padding = '48px';
+            else if (val === 'wide') editor.style.padding = '150px';
+            else editor.style.padding = '96px';
+        }
+
+        function toggleDarkMode() { document.getElementById('editor').classList.toggle('dark-mode'); }
+        function changeZoom(val) {
+            document.getElementById('editor').style.transform = `scale(${val / 100})`;
+            document.getElementById('zoomVal').innerText = val + '%';
+            document.getElementById('zoomStatus').innerText = val + '%';
+        }
+        function toggleWatermark() {
+            const wm = document.getElementById('watermark');
+            wm.style.display = wm.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function insertDateTime() { execCmd('insertText', new Date().toLocaleString('vi-VN')); }
+        function insertTable() {
+            const rows = prompt("Số hàng:", "3");
+            const cols = prompt("Số cột:", "3");
+            if (rows && cols) {
+                let html = "<table border='1' style='width:100%; border-collapse: collapse; margin: 15px 0;'>";
+                for (let i = 0; i < rows; i++) {
+                    html += "<tr>";
+                    for (let j = 0; j < cols; j++) html += "<td style='border: 1px solid #d2d0ce; padding: 8px;'>&nbsp;</td>";
+                    html += "</tr>";
                 }
-
-                // Reset document title
-                document.getElementById('docTitleDisplay').innerText = 'Văn bản chưa đặt tên - Word';
-
-                // Save blank state to local storage
-                localStorage.removeItem('ms_word_clone_content');
-                localStorage.removeItem('ms_word_clone_watermark');
+                html += "</table><p><br></p>";
+                document.execCommand('insertHTML', false, html);
             }
-
-            if (selectedResetType === 'fullApp') {
-                // Clear all local storage related to application
-                localStorage.clear();
-
-                // Reset Zoom
-                zoomLevel = 100;
-                applyZoom();
-
-                // Reset Theme Mode
-                document.documentElement.classList.remove('dark');
-
-                // Reset Ruler Visibility
-                const ruler = document.getElementById('rulerHeader');
-                if (ruler) ruler.classList.remove('hidden');
-            }
-
-            closeResetModal();
-            updateDocumentStats();
-            
-            // Show toast feedback
-            showToast(selectedResetType === 'fullApp' ? 'Đã đặt lại toàn bộ ứng dụng và dữ liệu thành công!' : 'Đã đặt lại nội dung văn bản về mặc định!');
         }
 
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-lg text-xs z-50 flex items-center gap-2 animate-bounce';
-            toast.innerHTML = `<i class="fas fa-circle-check text-green-400"></i> <span>${message}</span>`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        function insertImage() {
+            const url = prompt("Nhập URL hình ảnh:", "https://via.placeholder.com/300");
+            if (url) execCmd('insertImage', url);
         }
-        
-        // ... existing code ...
+
+        function insertLink() {
+            const url = prompt("Nhập URL liên kết:", "https://");
+            if (url) execCmd('createLink', url);
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.getElementById('accountDropdown').classList.remove('show');
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function performReplace() {
+            const find = document.getElementById('findInput').value;
+            const replace = document.getElementById('replaceInput').value;
+            if (!find) return;
+            const editor = document.getElementById('editor');
+            editor.innerHTML = editor.innerHTML.replaceAll(find, replace);
+            closeModal('findReplaceModal');
+            saveAndStats();
+        }
+
+        function toggleAccountMenu() { document.getElementById('accountDropdown').classList.toggle('show'); }
+        window.onclick = function(e) { if (!e.target.closest('.account-container')) document.getElementById('accountDropdown').classList.remove('show'); };
+
+        function register() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            if(!name || !email) return alert("Vui lòng điền đầy đủ thông tin!");
+
+            currentUser = { name, email };
+            setUserState();
+            closeModal('registerModal');
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            if(!email) return alert("Vui lòng nhập Email!");
+
+            const name = email.split('@')[0];
+            currentUser = { name, email };
+            setUserState();
+            closeModal('loginModal');
+        }
+
+        function setUserState() {
+            const initial = currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('userName').innerText = currentUser.name;
+            document.getElementById('userAvatar').innerText = initial;
+            document.getElementById('userBigAvatar').innerText = initial;
+            document.getElementById('accFullName').innerText = currentUser.name;
+            document.getElementById('accEmail').innerText = currentUser.email;
+
+            document.getElementById('accMenuBody').innerHTML = `
+                <div class="acc-item" onclick="alert('Đã đồng bộ tài liệu lên mây thành công!')">☁️ Đồng bộ OneDrive</div>
+                <div class="acc-item" style="color:red;" onclick="logout()">🚪 Đăng xuất</div>
+            `;
+
+            const saved = localStorage.getItem('word_doc_' + currentUser.email);
+            if(saved) document.getElementById('editor').innerHTML = saved;
+            saveAndStats();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('userName').innerText = "Khách";
+            document.getElementById('userAvatar').innerText = "K";
+            document.getElementById('userBigAvatar').innerText = "K";
+            document.getElementById('accFullName').innerText = "Tài khoản Khách";
+            document.getElementById('accEmail').innerText = "Chưa đăng nhập";
+            document.getElementById('accMenuBody').innerHTML = `
+                <div class="acc-item" onclick="openModal('loginModal')">🔑 Đăng nhập</div>
+                <div class="acc-item" onclick="openModal('registerModal')">📝 Đăng ký tài khoản</div>
+            `;
+            document.getElementById('editor').innerHTML = "";
+            saveAndStats();
+        }
+
+        function exportToWord() {
+            const content = document.getElementById('editor').innerHTML;
+            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
+            const sourceHTML = header + content + "</body></html>";
+            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            const a = document.createElement("a");
+            a.href = source;
+            a.download = 'tai-lieu-word.doc';
+            a.click();
+        }
+    </script>
+</body>
+</html>
